@@ -14,5 +14,10 @@ Lo que se ha hecho y lo que queda por hacer en *¡Plop!*. Una fila por versión 
 | 0.1.0 · M-07 | El título, el bestiario, las opciones y la pausa | hecho |
 | 0.1.0 · M-08 | El guardado, los iconos de la web y la partida automática | hecho |
 | 0.2.0 · M-09 | Pruebas unitarias (GUT) de las reglas puras y los datos de las criaturas, en `tests.yml` y antes de cada despliegue | hecho |
-| 0.2.0 | Las ayudas (Romper y Cambiar), la música y seguir un tarro a medias | idea |
+| 0.2.0 · M-10 | Más cómodo: descubrir criaturas en silencio ([spec](specs/2026-11-16-version-0-2-0-design.md) · [plan](plans/2026-11-16-version-0-2-0.md)); antes, la capa del design system pasa a `design/` y Dependabot sigue al núcleo | plan |
+| 0.2.0 · M-11 | Pausar sola al pasar a segundo plano | plan |
+| 0.2.0 · M-12 | Seguir un tarro a medias: guardarlo al salir y «Seguir» en el título (`SaveData` versión 2) | plan |
+| 0.2.0 · M-13 | Pulido de la 0.1.0: la línea de puntería, las alas, la pausa detrás de Opciones | plan |
+| 0.3.0 · M-14 | Las ayudas Romper y Cambiar, ganadas jugando y guardadas con el tarro ([spec](specs/2026-11-16-version-0-3-0-design.md) · [plan](plans/2026-11-16-version-0-3-0.md)) | plan |
+| 0.3.0 · M-15 | Música sintetizada en código para el título y el tarro, con su volumen en Opciones | plan |
 | Más adelante | Las criaturas 9 y 10 (Coloso y Albor), tarros distintos y el reto del día | idea |
