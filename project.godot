@@ -12,6 +12,7 @@ config_version=5
 
 config/name="¡Plop!"
 config/version="0.0.0"
+run/main_scene="res://scenes/title/title.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="Godot/app_userdata/juego-fusion"
 boot_splash/show_image=false

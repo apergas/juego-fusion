@@ -12,7 +12,7 @@ It is the second game after *Villaclaro* (`C:\Users\peixe\Documents\rpg-turnos`)
 
 ## Layout
 
-The code says what each script does; this is the map, plus what the code can't tell you. Nothing is written yet: this is the layout the 0.1.0 plan builds.
+The code says what each script does; this is the map, plus what the code can't tell you. Written so far: the title, the options, the effects, the jar's builder and an empty `Game`; the rest is the layout the 0.1.0 plan builds.
 
 - `scenes/title/` + `scripts/title/` — `TitleScreen`, the main scene: loads and applies the options, owns the only `AudioDirector`, then creates a `Game`.
 - `scenes/game/` + `scripts/game/` — `Game` (one play session, a coordinator over its pieces) and the pure rules it owns (`GameState`, `SaveData` / `SaveStore`, `RunFlags`, `Chain`, `Scoring`, `Spawner`, `Danger`, `Bestiary`...).
@@ -28,6 +28,8 @@ What the code does not explain:
 - The submodule is the public GitHub repository `apergas/godot-design-system` (its local clone for changing the core is `C:\Users\peixe\Documents\godot-design-system`), pinned to a tag (`v1.0.0`).
 - `scripts/ui/ui_tokens.gd` and `docs/design-system/tokens.css` are generated from `addons/design_system/tokens/base.json` plus `docs/design-system/tokens.json`; never edit them by hand.
 - On desktop `user://` is `%APPDATA%\Godot\app_userdata\juego-fusion\`; autoplay runs save to their own file and never touch the player's.
+- The whole interface is drawn `DisplaySettings.UI_SCALE` (1.25) times bigger than its tokens on every device (`content_scale_factor`): HUD offsets and window sizes are in those units.
+- The jar's numbers are the rule `JarSpec`: floor at y 0, walls at x ±3.0, danger line at 7.4, the waiting creature at 8.0; the orthographic camera (`KEEP_HEIGHT`) always shows 7.6 × 13.5 m around y 5.1 (`camera_size()`), so the HUD has 3.2 m of room above the jar on any phone.
 
 ## Conventions
 
