@@ -3,7 +3,8 @@ class_name TitleScreen extends Node
 ## in the lower half. Owns the only AudioDirector, the options and the profile (the record and the bestiary), loaded
 ## from the save (SaveStore) at the start, and creates a Game for each
 ## session; when the Game emits quit_to_title it frees it and shows the title again. Pattern
-## taken from Villaclaro's scripts/title/title_screen.gd.
+## taken from Villaclaro's scripts/title/title_screen.gd. With --autoplay the Game starts at once,
+## and the run quits when it goes back to the title.
 
 const GAME_SCENE := preload("res://scenes/game/game.tscn")
 const TITLE_TEXT := "¡Plop!"
@@ -20,9 +21,11 @@ var _buttons: VBoxContainer
 ## The spacer under the buttons: as tall as it takes to lift them over the jar's floor.
 var _bottom: Control
 var _game: Game
+var _autoplay := false
 
 
 func _ready() -> void:
+	_autoplay = RunFlags.autoplay()
 	_options = GameOptions.new()
 	_profile = Profile.new()
 	SaveStore.load_into(_profile, _options)
@@ -31,6 +34,9 @@ func _ready() -> void:
 	add_child(_audio)
 	_audio.set_volume(_options.sfx_volume)
 	get_viewport().size_changed.connect(_fit)
+	if _autoplay:
+		_start_game()
+		return
 	_open_title()
 
 
@@ -141,4 +147,7 @@ func _on_quit_to_title() -> void:
 	remove_child(_game)
 	_game.queue_free()
 	_game = null
+	if _autoplay:
+		get_tree().quit()
+		return
 	_open_title()

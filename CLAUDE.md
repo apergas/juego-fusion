@@ -30,6 +30,8 @@ What the code does not explain:
 - On desktop `user://` is `%APPDATA%\Godot\app_userdata\juego-fusion\`. The one save file is `save.json` (`SaveData` version 1: the record, the discovered ids and the options); autoplay runs save to `save_autoplay.json` and never touch the player's. A damaged file or one of an unknown version is ignored (nothing of it is applied) and kept once as `save.json.bak` before the next save overwrites it.
 - The whole interface is drawn `DisplaySettings.UI_SCALE` (1.25) times bigger than its tokens on every device (`content_scale_factor`): HUD offsets and window sizes are in those units.
 - The jar's numbers are the rule `JarSpec`: floor at y 0, walls at x ±3.0, danger line at 7.4, the waiting creature at 8.0; the orthographic camera (`KEEP_HEIGHT`) always shows 7.6 × 13.5 m around y 5.1 (`camera_size()`), so the HUD has 3.2 m of room above the jar on any phone.
+- A creature in the jar is a `CreatureBody` (`RigidBody3D`, a sphere of its radius) locked on Z and turning only around it; the waiting creature at the top is only a figure (`DropAim`), not a body. Touches arrive as mouse events (`emulate_mouse_from_touch`), so `DropAim` reads only the mouse; a Control under the finger (the pause button) takes the event first.
+- Flags (all read by `RunFlags`): `--autoplay` (rounds that play themselves; the title is skipped and the run quits at the end), `--autoplay-games=N`, `--autoplay-save`, `--autoplay-menu`, `--seed=<n>` (the first round's `Spawner` seed; each next round adds 1) and `--touch`. Physics is not exactly the same between runs, even with a seed.
 
 ## Conventions
 

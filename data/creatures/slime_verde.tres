@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CreatureData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/creature_data.gd" id="1_data"]
+
+[resource]
+script = ExtResource("1_data")
+id = "slime_verde"
+display_name = "Slime verde"
+level = 2
+radius = 0.4
+color = Color(0.373, 0.827, 0.353, 1)
+accent = Color(0.184, 0.478, 0.173, 1)
+look = "slime"
+lore = "Dos gotas que se pusieron de acuerdo. Sigue sin tener claro qué es."
