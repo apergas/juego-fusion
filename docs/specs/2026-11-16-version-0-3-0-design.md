@@ -34,7 +34,7 @@ Ni el spec de la 0.1.0 ni las ideas decían cómo eran las ayudas, así que se d
 ### Cambiar
 
 - **Tocar «Cambiar»** pone arriba la de «Siguiente» y en «Siguiente» la que esperaba, con un sonido corto; gasta una carga.
-- **No se puede** sin cargas, mientras no espera ninguna (la espera de 0,5 s tras soltar), si las dos son iguales (no cambiaría nada) o con la partida acabada: el botón se apaga.
+- **No se puede** sin cargas, si las dos son iguales (no cambiaría nada) o con la partida acabada: el botón se apaga.
 
 ### Las cargas
 

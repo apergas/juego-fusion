@@ -176,12 +176,15 @@ func resume_round(data: Dictionary) -> void:
 		open_pause()
 
 
-## Cambiar: the waiting creature and «Siguiente» change places (PowerUps), with its sound; false
-## (nothing changed) if it can't be used now. The HUD's button and the autoplay call it.
+## Cambiar: the waiting creature and «Siguiente» change places (PowerUps), with its sound (the
+## figure on top is replaced only if one is shown; in the drop wait the next one to appear is the
+## swapped one); false (nothing changed) if it can't be used now. The HUD's button and the
+## autoplay call it.
 func swap_waiting() -> bool:
 	if not PowerUps.swap(state):
 		return false
-	_jar.show_waiting(Chain.data(state.current))
+	if state.can_drop:
+		_jar.show_waiting(Chain.data(state.current))
 	_hud.set_next(Chain.data(state.next))
 	_audio.play_sfx(SfxLibrary.SWAP)
 	_show_power_ups()

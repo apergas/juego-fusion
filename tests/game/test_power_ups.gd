@@ -65,9 +65,8 @@ func test_cambiar_swaps_the_waiting_creature_with_the_next_and_spends_one() -> v
 	assert_eq(state.swaps, PowerUps.START - 1)
 
 
-func test_cambiar_needs_a_charge_a_waiting_creature_two_different_and_a_round_on() -> void:
-	var cases := {"no charge": "swaps", "nothing waits": "can_drop", "the same two": "next",
-		"the round is over": "over"}
+func test_cambiar_needs_a_charge_two_different_creatures_and_a_round_on() -> void:
+	var cases := {"no charge": "swaps", "the same two": "next", "the round is over": "over"}
 	for why: String in cases:
 		var state := _round()
 		state.current = 2
@@ -75,8 +74,6 @@ func test_cambiar_needs_a_charge_a_waiting_creature_two_different_and_a_round_on
 		match cases[why]:
 			"swaps":
 				state.swaps = 0
-			"can_drop":
-				state.can_drop = false
 			"next":
 				state.next = 2
 			"over":
@@ -85,6 +82,16 @@ func test_cambiar_needs_a_charge_a_waiting_creature_two_different_and_a_round_on
 		assert_false(PowerUps.can_swap(state), why)
 		assert_false(PowerUps.swap(state), why)
 		assert_eq([state.current, state.next, state.swaps], before, why)
+
+
+func test_cambiar_works_during_the_wait_after_a_drop() -> void:
+	var state := _round()
+	state.current = 1
+	state.next = 3
+	state.can_drop = false
+	assert_true(PowerUps.can_swap(state))
+	assert_true(PowerUps.swap(state))
+	assert_eq([state.current, state.next], [3, 1])
 
 
 func test_romper_spends_one_and_needs_a_charge_creatures_and_a_round_on() -> void:

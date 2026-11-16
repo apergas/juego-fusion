@@ -28,9 +28,10 @@ static func earn(state: GameState, old_score: int, old_max: int) -> Dictionary:
 	return {"breaks": state.breaks - had_breaks, "swaps": state.swaps - had_swaps}
 
 
-## Cambiar needs a charge, a creature waiting, «Siguiente» different from it and a round on.
+## Cambiar needs a charge, «Siguiente» different from the waiting creature and a round on. It works
+## during the wait after a drop too: the waiting creature is then the swapped one when it appears.
 static func can_swap(state: GameState) -> bool:
-	return state.swaps > 0 and state.can_drop and not state.over and state.current != state.next
+	return state.swaps > 0 and not state.over and state.current != state.next
 
 
 ## The waiting creature and «Siguiente» change places and a charge goes; false (nothing changed)
