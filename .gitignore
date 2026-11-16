@@ -14,3 +14,10 @@
 
 # Downloaded asset packs (CC0); only the models in use are copied to assets/
 assets_src/
+
+# graphify (local knowledge graph and its hooks)
+/graphify-out/
+/.githooks/post-checkout
+/.githooks/post-commit
+/.githooks/post-merge
+/.githooks/post-rewrite
