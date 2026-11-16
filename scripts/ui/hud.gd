@@ -129,3 +129,13 @@ func _label(parent: Control, variation: StringName, text: String) -> Label:
 	label.theme_type_variation = variation
 	parent.add_child(label)
 	return label
+
+
+## Drops the combo and the notice of the round before (a new round starts clean).
+func clear() -> void:
+	if _combo_tween:
+		_combo_tween.kill()
+	if _notice_tween:
+		_notice_tween.kill()
+	_combo.hide()
+	_notice.hide()

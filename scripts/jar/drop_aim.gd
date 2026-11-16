@@ -74,6 +74,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	var motion := event as InputEventMouseMotion
 	if motion and _held:
+		if not (motion.button_mask & MOUSE_BUTTON_MASK_LEFT):
+			_held = false
+			return
 		_move_to(_world_x(motion.position))
 		return
 	var key := event as InputEventKey

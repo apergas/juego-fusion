@@ -174,6 +174,7 @@ func _start_round() -> void:
 	_jar.released.connect(drop_at)
 	_jar.merge_found.connect(_on_merge_found)
 	add_child(_jar)
+	_hud.clear()
 	_hud.set_score(0)
 	_hud.set_record(_profile.best_score)
 	_hud.set_next(Chain.data(state.next))
