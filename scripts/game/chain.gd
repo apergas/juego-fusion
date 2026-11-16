@@ -25,8 +25,13 @@ static func data(level: int) -> CreatureData:
 	return _cache[level]
 
 
+## The creature with that id; null (and an error) for one the chain does not have.
 static func by_id(id: String) -> CreatureData:
-	return data(IDS.find(id) + 1)
+	var index := IDS.find(id)
+	if index < 0:
+		push_error("Chain: unknown creature id '%s'" % id)
+		return null
+	return data(index + 1)
 
 
 ## The level two creatures of level make; 0 for the last one (they vanish).
