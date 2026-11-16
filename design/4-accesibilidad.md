@@ -33,3 +33,4 @@ La opción de Opciones: ventanas opacas (`purple-950`), texto secundario y desac
 - El récord nuevo se dice con palabras: «¡Nuevo récord!».
 - Una criatura sin descubrir es una silueta con «???».
 - En un selector, la opción activa va rellena y dice «Sí» o «No».
+- Una ayuda que no se puede usar se apaga, y su botón dice cuántas quedan («Romper ×0»); mientras se elige qué romper, el botón se queda pulsado y una pista lo dice con palabras.

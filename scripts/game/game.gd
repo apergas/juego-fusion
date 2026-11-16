@@ -6,11 +6,12 @@ class_name Game extends Node
 ## physics frame) and the profile's record, bestiary and kept round, which it saves at the end of
 ## each round, at each discovery and whenever the player leaves a round still going
 ## (keep_round()). The Jar only reports (released, merge_found); the rules (Chain, Spawner,
-## Scoring, Danger, Bestiary, RoundSnapshot) decide; Game plays it back through the Jar, the Hud
-## and the windows. Its pieces: the Hud, the PauseWindow, the OptionsWindow over it and the
+## Scoring, Danger, Bestiary, RoundSnapshot, PowerUps) decide; Game plays it back through the Jar,
+## the Hud and the windows. Its pieces: the Hud, the PauseWindow, the OptionsWindow over it and the
 ## EndWindow (created when needed) and GameAutoplay (only with --autoplay). Esc, the HUD's button
 ## and losing the focus (FOCUS_LOST, never on autoplay) open the pause; a kept round comes back
-## in the pause (resume_round()). Salir and Salir al título go back to the title (quit_to_title).
+## in the pause (resume_round()). The HUD's Cambiar swaps the waiting creature with «Siguiente»
+## (swap_waiting()). Salir and Salir al título go back to the title (quit_to_title).
 
 signal quit_to_title
 
@@ -55,6 +56,7 @@ func _ready() -> void:
 		_audio.set_volume(_options.sfx_volume)
 	_hud = Hud.new()
 	_hud.pause_requested.connect(open_pause)
+	_hud.swap_requested.connect(swap_waiting)
 	add_child(_hud)
 	if RunFlags.autoplay():
 		_autopilot = GameAutoplay.new()
@@ -115,6 +117,7 @@ func drop_at(x: float) -> void:
 	_note_creature(data)
 	Spawner.advance(state)
 	_hud.set_next(Chain.data(state.next))
+	_show_power_ups()
 
 
 ## The pause window over a stopped jar (the whole tree pauses; the window keeps running). Not
@@ -168,8 +171,27 @@ func resume_round(data: Dictionary) -> void:
 	if state.can_drop:
 		_present()
 	_jar.set_aim_x(RoundSnapshot.aim_x_of(data))
+	_show_power_ups()
 	if _autopilot == null:
 		open_pause()
+
+
+## Cambiar: the waiting creature and «Siguiente» change places (PowerUps), with its sound; false
+## (nothing changed) if it can't be used now. The HUD's button and the autoplay call it.
+func swap_waiting() -> bool:
+	if not PowerUps.swap(state):
+		return false
+	_jar.show_waiting(Chain.data(state.current))
+	_hud.set_next(Chain.data(state.next))
+	_audio.play_sfx(SfxLibrary.SWAP)
+	_show_power_ups()
+	return true
+
+
+## The helps' buttons: their charges and whether they can be used now.
+func _show_power_ups() -> void:
+	_hud.set_power_ups(state.breaks, state.swaps,
+		PowerUps.can_break(state, _jar.creatures().size()), PowerUps.can_swap(state))
 
 
 ## Opciones over the pause: each change is put into effect and saved, as on the title. The pause
@@ -224,6 +246,7 @@ func _start_round() -> void:
 	state = GameState.new(seed_flag + _round if seed_flag >= 0 else -1)
 	_round += 1
 	Spawner.start(state)
+	PowerUps.start(state)
 	_new_jar()
 	_show_round()
 	_present()
@@ -261,6 +284,7 @@ func _present() -> void:
 	state.can_drop = true
 	state.wait_left = 0.0
 	_jar.show_waiting(Chain.data(state.current))
+	_show_power_ups()
 
 
 ## Two equal creatures touch (the Jar's merge_found): the combo and the points (Scoring), then the
@@ -269,6 +293,8 @@ func _on_merge_found(a: CreatureBody, b: CreatureBody) -> void:
 	if state.over:
 		return
 	var level := a.data.level
+	var old_score := state.score
+	var old_max := state.max_level
 	state.combo = Scoring.next_combo(state.combo, state.since_merge)
 	state.since_merge = 0.0
 	var points := Scoring.points(Chain.merge_points(level), state.combo)
@@ -287,6 +313,8 @@ func _on_merge_found(a: CreatureBody, b: CreatureBody) -> void:
 	_vibrate(made if made > 0 else Chain.MAX_LEVEL)
 	_hud.set_score(state.score)
 	_hud.show_combo(state.combo)
+	PowerUps.earn(state, old_score, old_max)
+	_show_power_ups()
 	if _autopilot:
 		_autopilot.on_merged(Chain.IDS[made - 1] if made > 0 else "", state.combo)
 
@@ -315,6 +343,7 @@ func _lose() -> void:
 	state.can_drop = false
 	_jar.freeze_all()
 	_jar.show_danger(0.0)
+	_show_power_ups()
 	_audio.play_sfx(SfxLibrary.LOSE)
 	var new_record := Scoring.record(_profile, state.score)
 	_profile.saved_round = {}

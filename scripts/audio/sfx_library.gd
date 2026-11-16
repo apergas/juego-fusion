@@ -15,6 +15,8 @@ const CANCEL := "cancel"
 const DROP := "drop"
 const PRIZE := "prize"
 const LOSE := "lose"
+const SWAP := "swap"
+const BREAK := "break"
 const RATE := 22050
 const NOISE_SEED := 4321
 ## Samples of fade-in at the start of every sound (no click).
@@ -39,6 +41,12 @@ const SOUNDS := {
 	# The jar overflows: a long fall, low.
 	LOSE: {"wave": "square", "from": 330.0, "to": 70.0, "time": 0.9, "volume": 0.35,
 		"decay": 0.8},
+	# Cambiar: two quick notes up.
+	SWAP: {"wave": "triangle", "notes": [523.25, 659.25], "time": 0.05, "volume": 0.3,
+		"decay": 1.0},
+	# Romper: a dry burst of noise, falling.
+	BREAK: {"wave": "noise", "from": 3000.0, "to": 600.0, "time": 0.18, "volume": 0.35,
+		"decay": 1.5},
 }
 
 static var _cache := {}
