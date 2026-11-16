@@ -13,5 +13,6 @@ Lo que se ha hecho y lo que queda por hacer en *¡Plop!*. Una fila por versión 
 | 0.1.0 · M-06 | Las ocho criaturas de la cadena y su aspecto | hecho |
 | 0.1.0 · M-07 | El título, el bestiario, las opciones y la pausa | hecho |
 | 0.1.0 · M-08 | El guardado, los iconos de la web y la partida automática | hecho |
+| 0.1.1 · M-09 | Pruebas unitarias (GUT) de las reglas puras y los datos de las criaturas, en `tests.yml` y antes de cada despliegue | hecho |
 | 0.2.0 | Las ayudas (Romper y Cambiar), la música y seguir un tarro a medias | idea |
 | Más adelante | Las criaturas 9 y 10 (Coloso y Albor), tarros distintos y el reto del día | idea |
