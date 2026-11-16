@@ -136,6 +136,7 @@ func _on_merge_found(a: CreatureBody, b: CreatureBody) -> void:
 	var points := Scoring.points(Chain.merge_points(level), state.combo)
 	state.score += points
 	var made := Chain.next_level(level)
+	var at := (a.position + b.position) / 2.0
 	if made == 0:
 		_jar.vanish(a, b)
 		_audio.play_sfx(SfxLibrary.PRIZE)
@@ -144,6 +145,8 @@ func _on_merge_found(a: CreatureBody, b: CreatureBody) -> void:
 		_jar.merge(a, b, data)
 		_audio.play_sfx(SfxLibrary.plop_id(made))
 		_note_creature(data)
+	_jar.show_points(at, points)
+	_vibrate(made if made > 0 else Chain.MAX_LEVEL)
 	_hud.set_score(state.score)
 	_hud.show_combo(state.combo)
 	if _autopilot:
@@ -153,6 +156,12 @@ func _on_merge_found(a: CreatureBody, b: CreatureBody) -> void:
 ## A creature has come into the jar (dropped or made by a merge).
 func _note_creature(data: CreatureData) -> void:
 	state.max_level = maxi(state.max_level, data.level)
+
+
+## A short vibration for a merge that makes level, if the player wants it (never on autoplay).
+func _vibrate(level: int) -> void:
+	if _options.vibration and _autopilot == null:
+		Input.vibrate_handheld(Chain.vibration_ms(level))
 
 
 ## The jar overflowed: everything stops, the record is checked and saved, the end window opens.

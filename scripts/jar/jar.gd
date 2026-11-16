@@ -2,7 +2,7 @@ class_name Jar extends Node3D
 ## Node: the jar of one round and its creatures as physics bodies (CreatureBody). It only
 ## reports what happens (released: the finger let the waiting creature go; merge_found: two equal creatures touch) and plays back what
 ## Game tells it (drop, show_waiting, merge, vanish). Built by JarBuilder, with its backdrop and camera; its
-## pieces are DropAim, MergeWatcher and DangerLine. Game creates a new one for every round and calls step() every physics
+## pieces are DropAim, MergeWatcher, DangerLine and FusionFx. Game creates a new one for every round and calls step() every physics
 ## frame: no piece runs its own _physics_process.
 
 signal released(x: float)
@@ -13,6 +13,7 @@ var _bodies: Array[CreatureBody] = []
 var _aim: DropAim
 var _watcher: MergeWatcher
 var _danger: DangerLine
+var _fx: FusionFx
 
 
 func _ready() -> void:
@@ -30,6 +31,8 @@ func _ready() -> void:
 	add_child(_watcher)
 	_danger = DangerLine.new()
 	add_child(_danger)
+	_fx = FusionFx.new()
+	add_child(_fx)
 
 
 func step(delta: float) -> void:
@@ -56,13 +59,23 @@ func merge(a: CreatureBody, b: CreatureBody, data: CreatureData) -> CreatureBody
 	var body := _spawn(data, at)
 	body.linear_velocity = velocity
 	body.grow()
+	_fx.pop(body.figure)
+	_fx.burst(at, data.color)
 	return body
 
 
-## Two of the last level vanish.
+## Two of the last level vanish, with a flash.
 func vanish(a: CreatureBody, b: CreatureBody) -> void:
+	var at := (a.position + b.position) / 2.0
+	var radius := a.data.radius
 	_remove(a)
 	_remove(b)
+	_fx.flash(at, radius)
+
+
+## The points a merge won, rising over at.
+func show_points(at: Vector3, value: int) -> void:
+	_fx.points(at, value)
 
 
 func show_waiting(data: CreatureData) -> void:
