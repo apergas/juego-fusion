@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maqueta de pantallas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+/* Maqueta de las pantallas de la 0.1.0, en vertical. Las medidas y los nombres son los tokens del
+   núcleo (tokens.css); los colores de este bloque son la PROPUESTA de paleta del juego, que el plan
+   pasará a tokens.json si se aprueba. No es código del juego. */
+:root {
+  --surface-window: #2a1f45e6;
+  --surface-window-solid: #2a1f45;
+  --surface-selected: #45346e;
+  --surface-scrim: #0d0818b3;
+  --border-window: #f3ecff;
+  --border-subtle: #5b4a80;
+  --border-focus: #ffcf4a;
+  --text-primary: #ffffff;
+  --text-secondary: #cfc4e6;
+  --text-accent: #ffcf4a;
+  --text-danger: #ff5d73;
+  --font-display: "Baloo 2", system-ui, sans-serif;
+  --font-ui: "Nunito", system-ui, sans-serif;
+  /* Propios del juego (propuesta) */
+  --world-top: #3b2a5c;
+  --world-bottom: #1e1533;
+  --jar-glass: #ffffff14;
+  --jar-rim: #e9defc;
+  --danger-line: #ff5d73;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: #120d1f; color: #eee; font-family: var(--font-ui); padding: 24px 16px 48px; }
+h1 { font-family: var(--font-display); margin: 0 0 4px; font-size: 28px; }
+.intro { max-width: 760px; color: #bbb; margin: 0 0 16px; line-height: 1.5; }
+.toggles { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; font-size: 15px; }
+.toggles label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+.screens { display: flex; flex-wrap: wrap; gap: 32px; }
+figure { margin: 0; }
+figcaption { margin-top: 10px; font-size: 14px; color: #bbb; max-width: 360px; line-height: 1.45; }
+figcaption b { color: #fff; }
+.phone {
+  position: relative; width: 360px; height: 740px; border-radius: 28px; overflow: hidden;
+  background: linear-gradient(var(--world-top), var(--world-bottom));
+  box-shadow: 0 0 0 8px #000, 0 12px 40px #0008; font-family: var(--font-ui); color: var(--text-primary);
+}
+@media (max-width: 400px) { .phone { width: calc(100vw - 48px); } }
+.motes i { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #fff; opacity: .25; }
+.thumb { position: absolute; left: 0; right: 0; bottom: 0; height: 50%; background: repeating-linear-gradient(45deg, #ffcf4a22 0 10px, transparent 10px 20px); border-top: 2px dashed #ffcf4a88; pointer-events: none; display: none; }
+.thumb::after { content: "zona del pulgar"; position: absolute; right: 10px; top: 6px; font-size: 12px; color: #ffcf4a; }
+body.show-thumb .thumb { display: block; }
+.safe { position: absolute; left: 0; right: 0; top: 0; height: 32px; background: #ff5d7333; display: none; }
+.safe::after { content: "barra de estado"; position: absolute; left: 10px; top: 8px; font-size: 11px; color: #ff9aa8; }
+body.show-safe .safe { display: block; }
+
+/* HUD */
+.hud { position: absolute; top: 40px; left: var(--space-4); right: var(--space-4); display: flex; justify-content: space-between; align-items: flex-start; }
+.score { font-family: var(--font-display); font-weight: 800; font-size: 34px; line-height: 1; text-shadow: 0 2px 0 #0006; }
+.best { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+.best b { color: var(--text-accent); }
+.right { display: flex; gap: var(--space-2); align-items: flex-start; }
+.next { background: var(--surface-window); border: var(--border-2) solid var(--border-window); border-radius: var(--radius-l); padding: 4px 10px 8px; text-align: center; font-size: 12px; color: var(--text-secondary); min-width: 72px; }
+.next svg { display: block; margin: 4px auto 0; }
+.pause { width: var(--touch-target); height: var(--touch-target); border-radius: var(--radius-full); background: var(--surface-window); border: var(--border-2) solid var(--border-window); display: grid; place-items: center; }
+.pause::before { content: ""; width: 16px; height: 18px; border-left: 5px solid #fff; border-right: 5px solid #fff; }
+
+/* Tarro: 6,0 m de ancho = 300 px (50 px/m) */
+.jar { position: absolute; left: 30px; width: 300px; height: 420px; bottom: 110px; border: 5px solid var(--jar-rim); border-top: none; border-radius: 0 0 26px 26px; background: var(--jar-glass); }
+.jar .line { position: absolute; left: -5px; right: -5px; top: 50px; border-top: 3px dashed #ffffff55; }
+.jar .line.hot { border-top-color: var(--danger-line); animation: blink .35s steps(2) infinite; }
+.jar .line.hot::after { content: "2,1 s"; position: absolute; right: 6px; top: -22px; font-weight: 800; font-size: 14px; color: var(--danger-line); }
+@keyframes blink { 50% { opacity: .25; } }
+.c { position: absolute; transform: translate(-50%, 50%); }
+.aim { position: absolute; top: 0; border-left: 2px dashed #ffffff40; }
+.holder { position: absolute; transform: translate(-50%, -50%); }
+.combo { position: absolute; left: 0; right: 0; top: 150px; text-align: center; font-family: var(--font-display); font-weight: 800; font-size: 30px; color: var(--text-accent); text-shadow: 0 3px 0 #0008; }
+.pts { position: absolute; font-family: var(--font-display); font-weight: 800; font-size: 20px; color: #fff; text-shadow: 0 2px 0 #0008; transform: translate(-50%, 0); }
+.burst { position: absolute; width: 90px; height: 90px; transform: translate(-50%, 50%); border-radius: 50%; background: radial-gradient(#ffffff88, transparent 65%); }
+.hint { position: absolute; left: 0; right: 0; bottom: 40px; text-align: center; font-size: 15px; color: var(--text-secondary); }
+.finger { position: absolute; width: 46px; height: 46px; border-radius: 50%; border: 3px solid #ffffffaa; background: #ffffff22; transform: translate(-50%, -50%); }
+
+/* Ventanas */
+.scrim { position: absolute; inset: 0; background: var(--surface-scrim); }
+.win { position: absolute; left: var(--space-6); right: var(--space-6); background: var(--surface-window-solid); border: var(--border-3) solid var(--border-window); border-radius: var(--radius-l); box-shadow: var(--shadow-window); padding: var(--space-6); text-align: center; }
+.win h2 { font-family: var(--font-display); font-weight: 800; font-size: 32px; margin: 0 0 var(--space-2); color: var(--text-accent); }
+.big { font-family: var(--font-display); font-weight: 800; font-size: 52px; line-height: 1; }
+.sub { color: var(--text-secondary); font-size: 16px; margin: 6px 0 var(--space-4); }
+.record { display: inline-block; background: var(--text-accent); color: #2a1f45; font-weight: 800; border-radius: var(--radius-full); padding: 4px 14px; margin-bottom: var(--space-4); }
+.btn { display: flex; align-items: center; justify-content: center; height: var(--touch-target); min-width: var(--touch-min-width); border-radius: var(--radius-m); border: var(--border-2) solid var(--border-window); background: var(--surface-selected); font-weight: 800; font-size: 20px; color: #fff; margin-top: var(--space-3); }
+.btn.primary { background: var(--text-accent); color: #2a1f45; border-color: var(--text-accent); }
+.btn.ghost { background: transparent; border-color: var(--border-subtle); }
+.maxc { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: var(--space-4); font-weight: 700; }
+
+/* Título */
+.logo { position: absolute; top: 110px; left: 0; right: 0; text-align: center; font-family: var(--font-display); font-weight: 800; font-size: 54px; line-height: .95; color: var(--text-accent); text-shadow: 0 4px 0 #6b3fa0, 0 8px 18px #0008; }
+.logo small { display: block; font-size: 22px; color: #fff; text-shadow: 0 2px 0 #0008; margin-top: 10px; font-weight: 600; }
+.pile { position: absolute; left: 0; right: 0; top: 290px; height: 150px; }
+.menu { position: absolute; left: 40px; right: 40px; bottom: 60px; }
+.menu .btn { margin-top: var(--space-4); height: 64px; font-size: 22px; }
+
+/* Bestiario */
+.head { position: absolute; top: 40px; left: var(--space-4); right: var(--space-4); display: flex; align-items: center; gap: var(--space-3); }
+.back { width: var(--touch-target); height: var(--touch-target); border-radius: var(--radius-full); background: var(--surface-window); border: var(--border-2) solid var(--border-window); display: grid; place-items: center; font-size: 26px; font-weight: 800; }
+.head h2 { font-family: var(--font-display); font-weight: 800; font-size: 30px; margin: 0; flex: 1; }
+.head .count { color: var(--text-secondary); font-weight: 700; }
+.grid { position: absolute; top: 112px; left: var(--space-4); right: var(--space-4); display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+.card { background: var(--surface-window); border: var(--border-2) solid var(--border-subtle); border-radius: var(--radius-l); height: 128px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.card .n { font-weight: 800; font-size: 15px; }
+.card .lv { font-size: 12px; color: var(--text-secondary); }
+.card.off .n { color: var(--text-disabled); }
+.card.sel { border-color: var(--border-focus); border-width: 3px; }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface-window-solid); border-top: var(--border-3) solid var(--border-window); border-radius: 20px 20px 0 0; padding: var(--space-4) var(--space-6) var(--space-8); }
+.sheet .t { font-family: var(--font-display); font-weight: 800; font-size: 24px; }
+.sheet p { margin: 4px 0 0; color: var(--text-secondary); font-size: 15px; line-height: 1.4; }
+
+/* Opciones */
+.opt { display: flex; align-items: center; justify-content: space-between; min-height: var(--touch-target); border-bottom: var(--border-1) solid var(--border-subtle); font-size: 18px; font-weight: 700; text-align: left; }
+.switch { width: 58px; height: 32px; border-radius: 16px; background: var(--border-subtle); position: relative; }
+.switch.on { background: var(--text-accent); }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; }
+.switch.on::after { left: 29px; }
+.slider { width: 130px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--text-accent) 70%, var(--border-subtle) 70%); position: relative; }
+.slider::after { content: ""; position: absolute; left: 70%; top: 50%; width: 26px; height: 26px; border-radius: 50%; background: #fff; transform: translate(-50%, -50%); }
+</style>
+</head>
+<body>
+<h1>Maqueta de pantallas · 0.1.0</h1>
+<p class="intro">Las pantallas de la primera versión, en vertical (360 × 740, un móvil normal). Los colores son la <b>propuesta</b> de paleta; las medidas, los tokens del núcleo (botones de <code>touch-target</code>, 56 px, o más). El tarro y las criaturas están a escala: 6 m de ancho = 300 px.</p>
+<div class="toggles">
+  <label><input type="checkbox" id="t-thumb"> Ver la zona del pulgar (mitad de abajo)</label>
+  <label><input type="checkbox" id="t-safe"> Ver la barra de estado del móvil</label>
+</div>
+<div class="screens" id="screens"></div>
+
+<script>
+// Las ocho criaturas del spec: radio en metros (×50 = px), color y lo que las distingue.
+const C = [
+  {id: "gota", name: "Gota de rocío", r: .30, col: "#9fe3ff", x: "drop"},
+  {id: "slime_verde", name: "Slime verde", r: .40, col: "#6fdc6f", x: "slime"},
+  {id: "slime_azul", name: "Slime azul", r: .52, col: "#4f8cff", x: "cheeks"},
+  {id: "seta", name: "Seta saltarina", r: .66, col: "#f4e3c3", x: "cap"},
+  {id: "murcielago", name: "Murciélago", r: .82, col: "#9b6bd6", x: "bat"},
+  {id: "lobo", name: "Lobo de niebla", r: 1.00, col: "#a9b0bd", x: "wolf"},
+  {id: "golem", name: "Gólem de musgo", r: 1.22, col: "#8a8f7a", x: "moss"},
+  {id: "dragon", name: "Dragón pequeño", r: 1.48, col: "#ff6b4a", x: "dragon"},
+];
+const TEXT = [
+  "Lo más pequeño del tarro. No te fíes: todo empieza por una gota.",
+  "Dos gotas que se caían bien. Ahora es una sola y no se calla.",
+  "Más frío, más grande y con las mejillas siempre coloradas.",
+  "Salta sin motivo. El sombrero tampoco tiene motivo.",
+  "Duerme boca abajo dentro del tarro. Nadie sabe cómo.",
+  "Aúlla a la tapa del tarro como si fuera la luna.",
+  "Lleva musgo encima desde hace siglos. Dice que es moda.",
+  "Escupe chispas cuando se emociona. Cuidado con los combos.",
+];
+function shade(hex, f) {
+  const n = parseInt(hex.slice(1), 16);
+  const ch = s => Math.max(0, Math.min(255, Math.round(((n >> s) & 255) * f)));
+  return `rgb(${ch(16)},${ch(8)},${ch(0)})`;
+}
+// Una criatura como SVG de lado 2r px (más margen para orejas y alas).
+function creature(i, px = 50, silhouette = false) {
+  const c = C[i], r = c.r * px, m = r * .55, s = 2 * (r + m);
+  const o = r + m;
+  const body = silhouette ? "#00000055" : c.col, dark = silhouette ? "#00000055" : shade(c.col, .7);
+  let back = "", front = "";
+  const eye = (dx) => `<circle cx="${o + dx}" cy="${o - r * .12}" r="${r * .13}" fill="#1a1230"/><circle cx="${o + dx + r * .04}" cy="${o - r * .17}" r="${r * .045}" fill="#fff"/>`;
+  if (c.x === "bat") back = `<path d="M${o - r * .8},${o - r * .1} L${o - r - m * .95},${o - r * .55} L${o - r - m * .6},${o + r * .1} L${o - r - m * .9},${o + r * .3} Z" fill="${dark}"/><path d="M${o + r * .8},${o - r * .1} L${o + r + m * .95},${o - r * .55} L${o + r + m * .6},${o + r * .1} L${o + r + m * .9},${o + r * .3} Z" fill="${dark}"/><path d="M${o - r * .55},${o - r * .7} L${o - r * .45},${o - r - m * .6} L${o - r * .15},${o - r * .85} Z" fill="${dark}"/><path d="M${o + r * .55},${o - r * .7} L${o + r * .45},${o - r - m * .6} L${o + r * .15},${o - r * .85} Z" fill="${dark}"/>`;
+  if (c.x === "wolf") back = `<path d="M${o - r * .75},${o - r * .5} L${o - r * .6},${o - r - m * .7} L${o - r * .2},${o - r * .9} Z" fill="${dark}"/><path d="M${o + r * .75},${o - r * .5} L${o + r * .6},${o - r - m * .7} L${o + r * .2},${o - r * .9} Z" fill="${dark}"/>`;
+  if (c.x === "dragon") back = `<path d="M${o - r * .75},${o} L${o - r - m * .9},${o - r * .7} L${o - r - m * .3},${o + r * .2} Z" fill="${dark}"/><path d="M${o + r * .75},${o} L${o + r + m * .9},${o - r * .7} L${o + r + m * .3},${o + r * .2} Z" fill="${dark}"/><path d="M${o - r * .45},${o - r * .8} L${o - r * .55},${o - r - m * .75} L${o - r * .15},${o - r * .95} Z" fill="#ffe2a8"/><path d="M${o + r * .45},${o - r * .8} L${o + r * .55},${o - r - m * .75} L${o + r * .15},${o - r * .95} Z" fill="#ffe2a8"/>`;
+  // Cuerpo facetado: un polígono de 10 lados con la mitad de abajo más oscura.
+  const pts = [];
+  for (let k = 0; k < 10; k++) { const a = Math.PI * 2 * k / 10 + Math.PI / 10; pts.push(`${o + Math.cos(a) * r},${o + Math.sin(a) * r}`); }
+  let bodySvg = `<polygon points="${pts.join(" ")}" fill="${body}"/>`;
+  if (!silhouette) bodySvg += `<polygon points="${pts.slice(0, 5).join(" ")} ${o - r},${o}" fill="${dark}" opacity=".45"/><polygon points="${o - r * .5},${o - r * .55} ${o - r * .15},${o - r * .8} ${o - r * .3},${o - r * .3}" fill="#fff" opacity=".35"/>`;
+  if (c.x === "drop") bodySvg += silhouette ? "" : "";
+  if (!silhouette) {
+    if (c.x === "cap") front += `<path d="M${o - r * 1.08},${o - r * .2} Q${o},${o - r * 1.6} ${o + r * 1.08},${o - r * .2} Z" fill="#e8453c"/><circle cx="${o - r * .4}" cy="${o - r * .62}" r="${r * .13}" fill="#fff"/><circle cx="${o + r * .3}" cy="${o - r * .75}" r="${r * .1}" fill="#fff"/><circle cx="${o + r * .62}" cy="${o - r * .42}" r="${r * .08}" fill="#fff"/>`;
+    if (c.x === "moss") front += `<path d="M${o - r * .9},${o - r * .4} Q${o - r * .5},${o - r * 1.15} ${o},${o - r * 1.02} Q${o + r * .55},${o - r * 1.15} ${o + r * .9},${o - r * .4} Q${o + r * .4},${o - r * .6} ${o},${o - r * .5} Q${o - r * .5},${o - r * .65} ${o - r * .9},${o - r * .4} Z" fill="#6aa84f"/>`;
+    const ey = c.x === "cap" ? r * .18 : 0;
+    front += `<g transform="translate(0 ${ey})">${eye(-r * .32)}${eye(r * .32)}`;
+    if (c.x === "cheeks" || c.x === "slime" || c.x === "drop") front += `<circle cx="${o - r * .55}" cy="${o + r * .15}" r="${r * .12}" fill="#ff8fb0" opacity=".7"/><circle cx="${o + r * .55}" cy="${o + r * .15}" r="${r * .12}" fill="#ff8fb0" opacity=".7"/>`;
+    if (c.x === "wolf" || c.x === "dragon") front += `<ellipse cx="${o}" cy="${o + r * .28}" rx="${r * .3}" ry="${r * .2}" fill="${shade(c.col, 1.15)}"/><circle cx="${o}" cy="${o + r * .2}" r="${r * .07}" fill="#1a1230"/>`;
+    else front += `<path d="M${o - r * .14},${o + r * .2} Q${o},${o + r * .36} ${o + r * .14},${o + r * .2}" stroke="#1a1230" stroke-width="${Math.max(1.5, r * .06)}" fill="none" stroke-linecap="round"/>`;
+    front += `</g>`;
+  }
+  return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">${back}${bodySvg}${front}</svg>`;
+}
+// Pone una criatura dentro del tarro: x e y en metros desde la esquina de abajo a la izquierda.
+function inJar(i, x, y) { return `<div class="c" style="left:${x * 50}px;bottom:${y * 50}px">${creature(i)}</div>`; }
+function motes() { let s = ""; const p = [[40, 80], [300, 130], [210, 60], [70, 600], [330, 560], [150, 700], [20, 300], [340, 360]]; for (const [x, y] of p) s += `<i style="left:${x}px;top:${y}px"></i>`; return `<div class="motes">${s}</div>`; }
+function overlays() { return `<div class="safe"></div><div class="thumb"></div>`; }
+function hud(score, best, next) {
+  return `<div class="hud"><div><div class="score">${score}</div><div class="best">Récord <b>${best}</b></div></div>
+    <div class="right"><div class="next">Siguiente${creature(next, 34)}</div><div class="pause"></div></div></div>`;
+}
+// Un montón de criaturas asentadas: cada una cae en su X (metros) y se queda en el punto más bajo
+// sin solaparse con las paredes ni con las que ya están (sin rodar: basta para la maqueta).
+function settle(drops) {
+  const placed = [];
+  for (const [i, x0] of drops) {
+    const r = C[i].r, x = Math.min(Math.max(x0, r), 6 - r);
+    let y = r;
+    for (const [j, xj, yj] of placed) {
+      const s = r + C[j].r, dx = x - xj;
+      if (Math.abs(dx) < s) y = Math.max(y, yj + Math.sqrt(s * s - dx * dx));
+    }
+    placed.push([i, x, y]);
+  }
+  return placed;
+}
+const BASE = [[6, 1.3], [5, 4.9], [3, 3.3], [0, 2.4], [1, 5.7], [4, 2.8], [2, 4.4], [0, 0.4], [3, 0.7], [1, 3.9], [2, 5.4], [1, 1.9]];
+const DANGER = [[7, 4.3], [6, 1.5], [2, 3.0]];
+const LOOSE = [[7, 4.3], [6, 1.5], [3, 3.0]];
+function pile(extra = []) { return settle(BASE.concat(extra)).map(([i, x, y]) => inJar(i, x, y)).join(""); }
+
+const screens = [];
+screens.push([`Título`, `<div class="phone">${motes()}
+  <div class="logo">Fusión<br>de criaturas<small>junta dos iguales</small></div>
+  <div class="pile">${[[0, 62, 12], [2, 108, 20], [4, 172, 30], [1, 232, 14], [6, 290, 36]].map(([i, x, y]) => `<div class="c" style="left:${x}px;bottom:${y + 20}px">${creature(i, 36)}</div>`).join("")}</div>
+  <div class="menu"><div class="btn primary">Jugar</div><div class="btn">Bestiario</div><div class="btn ghost">Opciones</div></div>
+  ${overlays()}</div>`, `<b>Título.</b> Tres botones grandes en la zona del pulgar; el logotipo y unas criaturas arriba, solo para mirar.`]);
+
+screens.push([`Partida`, `<div class="phone">${motes()}${hud("1.240", "3.900", 2)}
+  <div class="jar"><div class="line"></div>${pile()}
+    <div class="aim" style="left:${3.9 * 50}px;height:350px"></div>
+    <div class="burst" style="left:${settle(BASE)[9][1] * 50}px;bottom:${settle(BASE)[9][2] * 50}px"></div>
+    <div class="pts" style="left:${settle(BASE)[9][1] * 50}px;bottom:${(settle(BASE)[9][2] + 0.8) * 50}px">+10</div>
+  </div>
+  <div class="holder" style="left:${30 + 3.9 * 50}px;top:${740 - 110 - 420 + 15}px">${creature(1)}</div>
+  <div class="combo">¡Combo ×2!</div>
+  <div class="finger" style="left:${30 + 3.9 * 50}px;top:690px"></div>
+  ${overlays()}</div>`, `<b>Partida.</b> El dedo se apoya en cualquier sitio (abajo, sin tapar el tarro) y la criatura de arriba sigue su X; la línea discontinua dice dónde cae. Al levantar el dedo, cae. Arriba: puntos, récord, «Siguiente» y pausa (en las esquinas, que se tocan poco).`]);
+
+screens.push([`Peligro`, `<div class="phone">${motes()}${hud("2.810", "3.900", 0)}
+  <div class="jar"><div class="line hot"></div>${pile(DANGER)}</div>
+  <div class="hint">La línea parpadea: algo lleva fuera más de 1 s</div>
+  ${overlays()}</div>`, `<b>Peligro.</b> Si una criatura asentada asoma por encima de la línea, la línea parpadea en rojo y cuenta; a los 3 s seguidos se pierde.`]);
+
+screens.push([`Fin`, `<div class="phone">${motes()}${hud("4.150", "4.150", 1)}
+  <div class="jar"><div class="line"></div>${pile(LOOSE)}</div>
+  <div class="scrim"></div>
+  <div class="win" style="top:170px"><h2>¡Tarro lleno!</h2><div class="big">4.150</div><div class="sub">puntos</div>
+    <div class="record">¡Nuevo récord!</div>
+    <div class="maxc">${creature(7, 26)} Hasta el Dragón pequeño</div>
+    <div class="btn primary">Otra vez</div><div class="btn ghost">Salir</div></div>
+  ${overlays()}</div>`, `<b>Fin.</b> Puntos en grande, récord si lo es, la criatura más grande de la partida y dos botones: «Otra vez» va primero, en amarillo.`]);
+
+screens.push([`Bestiario`, `<div class="phone">${motes()}
+  <div class="head"><div class="back">‹</div><h2>Bestiario</h2><span class="count">6/8</span></div>
+  <div class="grid">${C.map((c, i) => `<div class="card ${i > 5 ? "off" : ""} ${i === 3 ? "sel" : ""}">${creature(i, i > 4 ? 30 : 40, i > 5)}<div class="n">${i > 5 ? "???" : c.name}</div><div class="lv">Nivel ${i + 1}</div></div>`).join("")}</div>
+  <div class="sheet"><div class="t">Seta saltarina</div><p>${TEXT[3]}</p></div>
+  ${overlays()}</div>`, `<b>Bestiario.</b> Cuadrícula de 2 columnas; tocar una ficha abre su texto en una hoja abajo. Las que no has hecho salen en silueta con «???».`]);
+
+screens.push([`Pausa y opciones`, `<div class="phone">${motes()}${hud("1.240", "3.900", 2)}
+  <div class="jar"><div class="line"></div>${pile()}</div>
+  <div class="scrim"></div>
+  <div class="win" style="top:200px"><h2>Pausa</h2>
+    <div class="opt"><span>Efectos</span><span class="slider"></span></div>
+    <div class="opt"><span>Vibración</span><span class="switch on"></span></div>
+    <div class="opt"><span>Alto contraste</span><span class="switch"></span></div>
+    <div class="btn primary" style="margin-top:20px">Seguir</div><div class="btn">Empezar de nuevo</div><div class="btn ghost">Salir al título</div></div>
+  ${overlays()}</div>`, `<b>Pausa.</b> Las opciones van dentro de la pausa (además de en el título), para cambiar el sonido o la vibración sin salir de la partida.`]);
+
+document.getElementById("screens").innerHTML = screens.map(([t, html, cap]) => `<figure>${html}<figcaption>${cap}</figcaption></figure>`).join("");
+document.getElementById("t-thumb").addEventListener("change", e => document.body.classList.toggle("show-thumb", e.target.checked));
+document.getElementById("t-safe").addEventListener("change", e => document.body.classList.toggle("show-safe", e.target.checked));
+</script>
+</body>
+</html>
