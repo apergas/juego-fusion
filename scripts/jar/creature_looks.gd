@@ -75,7 +75,7 @@ static func build(data: CreatureData, silhouette := false) -> Node3D:
 				Vector3(0.0, 0.62 * r, 0.0))
 		"dragon":
 			_add(root, LowPoly.blob(_ball(r), SEGMENTS), main)
-			_ears(root, r, 0.14, 0.85, 0.16, 6.0, second)
+			_ears(root, r, 0.18, 0.95, 0.17, 6.0, second)
 			_wings(root, r, _paint(main_color.darkened(0.25), silhouette))
 		_:
 			_add(root, LowPoly.blob(_ball(r), SEGMENTS), main)
@@ -122,8 +122,8 @@ static func _ears(root: Node3D, r: float, radius: float, height: float, x: float
 
 ## Two flat scalloped membranes for wings, behind the head: each rises from the upper shoulder to a
 ## tip up and out, with three scallops along its lower edge. WING_EDGE is the right wing's outline
-## in radii (x out, y up), no point past 0.9 sideways while upright (a rolling figure can still poke
-## its wings out of the jar for a moment).
+## in radii (x out, y up), no point past 0.9 sideways (CreatureBody keeps the figure upright), so
+## nothing pokes through the jar's wall.
 static func _wings(root: Node3D, r: float, material: Material) -> void:
 	for side: float in [-1.0, 1.0]:
 		var st := SurfaceTool.new()
