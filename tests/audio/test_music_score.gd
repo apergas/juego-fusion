@@ -52,3 +52,23 @@ func test_each_tune_is_calm_and_short() -> void:
 	for id in MusicScore.IDS:
 		assert_between(int(MusicScore.TRACKS[id].bpm), 60, 110, id)
 		assert_between(MusicScore.seconds(id), 10.0, 40.0, id)
+
+
+func test_parse_reads_notes_rests_and_hits_with_their_lengths() -> void:
+	var notes := MusicScore.parse(["A4/4 r/4 h/8"])
+	assert_eq(notes.size(), 3)
+	assert_almost_eq(float(notes[0][0]), 440.0, 0.001)
+	assert_eq(notes[0][1], 4)
+	assert_eq(notes[1][0], 0.0, "a rest is 0.0")
+	assert_eq(notes[1][1], 4)
+	assert_eq(notes[2][0], MusicScore.HAT, "a hit is the HAT string")
+	assert_true(notes[2][0] is String)
+	assert_eq(notes[2][1], 8)
+
+
+func test_a_sixteenth_and_a_tune_last_what_the_bpm_says() -> void:
+	assert_almost_eq(MusicScore.step_seconds(120), 0.125, 0.0001)
+	for id in MusicScore.IDS:
+		var track: Dictionary = MusicScore.TRACKS[id]
+		var expected: float = track.lead.size() * MusicScore.BAR * 60.0 / int(track.bpm) / 4.0
+		assert_almost_eq(MusicScore.seconds(id), expected, 0.0001, id)

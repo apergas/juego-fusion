@@ -3,7 +3,7 @@ class_name MusicLibrary extends RefCounted
 ## mono, through SfxLibrary.to_stream()) for the AudioDirector, and keeps no state but a cache of
 ## streams and of the hi-hat: the lead in a square wave (the tune's duty), the bass in a triangle,
 ## the hi-hat in noise. Copied from Villaclaro's scripts/audio/music_library.gd, trimmed to what
-## these tunes use; build() renders a tune once, the first time it plays (about 20 s of samples).
+## these tunes use; build() renders a tune once, the first time it plays (19 to 23 s of samples).
 
 ## If rendering a tune on the desktop takes more than 0.4 s, this goes down to 11025.
 const RATE := 22050
@@ -61,7 +61,7 @@ static func _add_voice(mix: PackedFloat32Array, notes: Array, total: int, step_f
 	var index := 0
 	while step < total:
 		var note: Array = notes[index % notes.size()]
-		var length: int = mini(note[1], total - step)
+		var length: int = maxi(mini(note[1], total - step), 1)
 		var freq: float = note[0]
 		if freq > 0.0:
 			_add_tone(mix, int(step * step_frames), int(length * step_frames), freq, duty,
@@ -108,7 +108,7 @@ static func _add_hats(mix: PackedFloat32Array, hits: Array, total: int,
 			var start := int(step * step_frames)
 			for i in mini(hat.size(), mix.size() - start):
 				mix[start + i] += hat[i]
-		step += int(hit[1])
+		step += maxi(int(hit[1]), 1)
 		index += 1
 
 
