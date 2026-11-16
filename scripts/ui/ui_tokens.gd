@@ -101,7 +101,6 @@ const HUD_BUTTON := 64
 const NEXT_VIEW := 80
 const BESTIARY_VIEW := 160
 const SLIDER_W := 240
-const HUD_NOTICE_TOP := 136
 const HUD_COMBO_TOP := 196
 
 # layer

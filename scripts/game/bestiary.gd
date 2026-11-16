@@ -1,9 +1,8 @@
 class_name Bestiary extends RefCounted
 ## Which creatures the player has seen. Pure: works on the Profile. A creature is discovered the
-## first time it is in the jar, dropped or made by a merge; the round shows NEW_TEXT once. The
-## bestiary shows UNKNOWN for the ones not yet discovered.
+## first time it is in the jar, dropped or made by a merge, in silence: nothing in the round says
+## so, only the bestiary shows it. The bestiary shows UNKNOWN for the ones not yet discovered.
 
-const NEW_TEXT := "¡Nueva criatura: %s!"
 const UNKNOWN := "???"
 
 

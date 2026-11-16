@@ -15,7 +15,6 @@ const CANCEL := "cancel"
 const DROP := "drop"
 const PRIZE := "prize"
 const LOSE := "lose"
-const NEW := "new"
 const RATE := 22050
 const NOISE_SEED := 4321
 ## Samples of fade-in at the start of every sound (no click).
@@ -40,9 +39,6 @@ const SOUNDS := {
 	# The jar overflows: a long fall, low.
 	LOSE: {"wave": "square", "from": 330.0, "to": 70.0, "time": 0.9, "volume": 0.35,
 		"decay": 0.8},
-	# A creature seen for the first time.
-	NEW: {"wave": "triangle", "notes": [880.0, 1174.66], "time": 0.07, "volume": 0.35,
-		"decay": 0.5},
 }
 
 static var _cache := {}

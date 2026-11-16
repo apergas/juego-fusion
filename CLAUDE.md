@@ -28,7 +28,7 @@ The code says what each script does; this is the map, plus what the code can't t
 
 What the code does not explain:
 
-- A creature is discovered (`Bestiary`) the first time it is in the jar, dropped or made by a merge; the round says «¡Nueva criatura: …!» and saves at once. `--autoplay-menu` tours the title's screens before the game (`TitleScreen._tour()`, in its `#region Autoplay`).
+- A creature is discovered (`Bestiary`) the first time it is in the jar, dropped or made by a merge, in silence (no notice, no sound, nothing at the end: only the Bestiario shows it); it is saved at once and the autoplay prints `Nueva:`. `--autoplay-menu` tours the title's screens before the game (`TitleScreen._tour()`, in its `#region Autoplay`).
 - The submodule is the public GitHub repository `apergas/godot-design-system` (its local clone for changing the core is `C:\Users\peixe\Documents\godot-design-system`), pinned to a tag (`v1.0.0`).
 - `scripts/ui/ui_tokens.gd` and `design/tokens.css` are generated from `addons/design_system/tokens/base.json` plus `design/tokens.json`; never edit them by hand.
 - On desktop `user://` is `%APPDATA%\Godot\app_userdata\juego-fusion\`. The one save file is `save.json` (`SaveData` version 1: the record, the discovered ids and the options); autoplay runs save to `save_autoplay.json` and never touch the player's. A damaged file or one of an unknown version is ignored (nothing of it is applied) and kept once as `save.json.bak` before the next save overwrites it.

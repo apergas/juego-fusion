@@ -74,7 +74,6 @@ Toda la interfaz se dibuja 1,25 veces más grande que sus tokens (`DisplaySettin
 | `next-view` | 80 | la criatura de «Siguiente» |
 | `bestiary-view` | 160 | la criatura de una ficha del bestiario |
 | `slider-w` | 240 | el deslizador de efectos |
-| `hud-notice-top` | 136 | dónde empieza el aviso, bajo la fila del HUD |
 | `hud-combo-top` | 196 | dónde empieza «¡Combo ×n!», sobre la boca del tarro |
 
 ## Capas

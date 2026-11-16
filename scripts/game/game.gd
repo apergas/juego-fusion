@@ -217,13 +217,11 @@ func _on_merge_found(a: CreatureBody, b: CreatureBody) -> void:
 
 
 ## A creature has come into the jar (dropped or made by a merge): the round's biggest and, the
-## first time ever, the bestiary (a notice, its sound and a save).
+## first time ever, the bestiary, in silence: only a save (and the autoplay's line).
 func _note_creature(data: CreatureData) -> void:
 	state.max_level = maxi(state.max_level, data.level)
 	if not Bestiary.discover(_profile, data.id):
 		return
-	_hud.show_notice(Bestiary.NEW_TEXT % data.display_name)
-	_audio.play_sfx(SfxLibrary.NEW)
 	SaveStore.save(_profile, _options)
 	if _autopilot:
 		_autopilot.on_discovered(data.id)
