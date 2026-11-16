@@ -7,7 +7,8 @@ class_name TitleScreen extends Node
 ## Villaclaro's scripts/title/title_screen.gd. Seguir resumes the kept round; Jugar with one kept
 ## asks first (a ConfirmWindow: Empezar forgets it). Bestiario and Opciones open a BestiaryWindow
 ## or an OptionsWindow over the title; an options change is put into effect at once
-## (DisplaySettings, the volume) and saved. With --autoplay the Game starts at once (a new round)
+## (DisplaySettings, the volumes) and saved. It plays the title's tune (MusicScore.TITLE) whenever
+## it shows itself. With --autoplay the Game starts at once (a new round)
 ## and the run quits when it goes back to the title; with --autoplay-menu too, the title first
 ## shows itself, the bestiary, the options and, with a round kept, the question of Jugar
 ## (_tour()), then starts the Game (resuming the kept round, if there is one).
@@ -51,7 +52,7 @@ func _ready() -> void:
 	DisplaySettings.apply(get_window(), _options)
 	_audio = AudioDirector.new()
 	add_child(_audio)
-	_audio.set_volume(_options.sfx_volume)
+	_audio.set_volumes(_options.music_volume, _options.sfx_volume)
 	get_viewport().size_changed.connect(_fit)
 	if _autoplay and not RunFlags.autoplay_menu():
 		_start_game()
@@ -70,6 +71,7 @@ func _open_title() -> void:
 	_camera = JarBuilder.camera(_backdrop)
 	_fit()
 	_build_menu()
+	_audio.play_music(MusicScore.TITLE)
 
 
 ## Taken out of the tree at once, so its camera never competes with the Jar's.
@@ -199,7 +201,7 @@ func _open_options() -> void:
 
 ## Every change at once: the volume (with a tick to hear it), the theme, and the save.
 func _on_options_changed() -> void:
-	_audio.set_volume(_options.sfx_volume)
+	_audio.set_volumes(_options.music_volume, _options.sfx_volume)
 	_audio.play_sfx(SfxLibrary.CURSOR)
 	DisplaySettings.apply(get_window(), _options)
 	SaveStore.save(_profile, _options)

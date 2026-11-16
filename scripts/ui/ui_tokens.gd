@@ -102,6 +102,7 @@ const NEXT_VIEW := 80
 const BESTIARY_VIEW := 160
 const SLIDER_W := 240
 const HUD_COMBO_TOP := 196
+const POWER_BUTTON_W := 176
 
 # layer
 const LAYER_HUD := 1

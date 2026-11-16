@@ -18,6 +18,8 @@ static func round_state() -> GameState:
 	state.max_level = 6
 	state.can_drop = false
 	state.wait_left = 0.3
+	state.breaks = 2
+	state.swaps = 0
 	return state
 
 

@@ -1,6 +1,6 @@
 # Versión 0.3.0: ayudas y música
 
-La tercera versión de *¡Plop!* añade dos ayudas para salir de un apuro, **Romper** y **Cambiar**, y música hecha en el propio juego para el título y para el tarro. Cubre M-14 y M-15 del [documento maestro](../documento-maestro.md). Las dos venían de la fila 0.2.0 del documento maestro y de «Fuera de la 0.1.0» del [spec de la 0.1.0](../legacy/specs/2026-11-16-version-0-1-0-design.md), que solo las nombraba; se pasaron aquí al repartir la 0.2.0 ([spec](../legacy/specs/2026-11-16-version-0-2-0-design.md)). Empieza cuando la 0.2.0 está en `develop`.
+La tercera versión de *¡Plop!* añade dos ayudas para salir de un apuro, **Romper** y **Cambiar**, y música hecha en el propio juego para el título y para el tarro. Cubre M-14 y M-15 del [documento maestro](../../documento-maestro.md). Las dos venían de la fila 0.2.0 del documento maestro y de «Fuera de la 0.1.0» del [spec de la 0.1.0](2026-11-16-version-0-1-0-design.md), que solo las nombraba; se pasaron aquí al repartir la 0.2.0 ([spec](2026-11-16-version-0-2-0-design.md)). Empieza cuando la 0.2.0 está en `develop`.
 
 ## Decisiones tomadas
 
@@ -34,7 +34,7 @@ Ni el spec de la 0.1.0 ni las ideas decían cómo eran las ayudas, así que se d
 ### Cambiar
 
 - **Tocar «Cambiar»** pone arriba la de «Siguiente» y en «Siguiente» la que esperaba, con un sonido corto; gasta una carga.
-- **No se puede** sin cargas, mientras no espera ninguna (la espera de 0,5 s tras soltar), si las dos son iguales (no cambiaría nada) o con la partida acabada: el botón se apaga.
+- **No se puede** sin cargas, si las dos son iguales (no cambiaría nada) o con la partida acabada: el botón se apaga.
 
 ### Las cargas
 

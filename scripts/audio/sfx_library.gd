@@ -1,7 +1,8 @@
 class_name SfxLibrary extends RefCounted
 ## Sound effects in the style of sfxr, synthesized in code. Copied from Villaclaro's
 ## scripts/audio/sfx_library.gd, trimmed to this game's effects, with the 16-bit stream writer of
-## Villaclaro's MusicLibrary (there is no music yet). Each effect is a Dictionary of parameters:
+## Villaclaro's MusicLibrary, which this game's MusicLibrary also uses (to_stream()).
+## Each effect is a Dictionary of parameters:
 ## wave ("square", "triangle" or "noise"), "from" and "to" (pitch in Hz at the start and at the
 ## end, slid linearly; for noise, how many new random values per second), "time" (seconds),
 ## "volume", "decay" (power of the fade-out: 1 is linear, higher fades sooner) and optional
@@ -15,6 +16,8 @@ const CANCEL := "cancel"
 const DROP := "drop"
 const PRIZE := "prize"
 const LOSE := "lose"
+const SWAP := "swap"
+const BREAK := "break"
 const RATE := 22050
 const NOISE_SEED := 4321
 ## Samples of fade-in at the start of every sound (no click).
@@ -39,6 +42,12 @@ const SOUNDS := {
 	# The jar overflows: a long fall, low.
 	LOSE: {"wave": "square", "from": 330.0, "to": 70.0, "time": 0.9, "volume": 0.35,
 		"decay": 0.8},
+	# Cambiar: two quick notes up.
+	SWAP: {"wave": "triangle", "notes": [523.25, 659.25], "time": 0.05, "volume": 0.3,
+		"decay": 1.0},
+	# Romper: a dry burst of noise, falling.
+	BREAK: {"wave": "noise", "from": 3000.0, "to": 600.0, "time": 0.18, "volume": 0.35,
+		"decay": 1.5},
 }
 
 static var _cache := {}
@@ -69,15 +78,15 @@ static func build(id: String) -> AudioStreamWAV:
 	return stream
 
 
-## 16-bit mono stream at RATE from samples in -1..1 (clipped).
-static func to_stream(samples: PackedFloat32Array) -> AudioStreamWAV:
+## 16-bit mono stream at rate from samples in -1..1 (clipped).
+static func to_stream(samples: PackedFloat32Array, rate := RATE) -> AudioStreamWAV:
 	var data := PackedByteArray()
 	data.resize(samples.size() * 2)
 	for i in samples.size():
 		data.encode_s16(i * 2, int(clampf(samples[i], -1.0, 1.0) * 32767.0))
 	var stream := AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_16_BITS
-	stream.mix_rate = RATE
+	stream.mix_rate = rate
 	stream.stereo = false
 	stream.data = data
 	return stream

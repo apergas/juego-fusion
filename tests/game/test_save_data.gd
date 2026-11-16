@@ -21,6 +21,7 @@ func _profile() -> Profile:
 
 func _options() -> GameOptions:
 	var options := GameOptions.new()
+	options.music_volume = 0.4
 	options.sfx_volume = 0.25
 	options.vibration = false
 	options.high_contrast = true
@@ -88,7 +89,8 @@ func test_a_version_1_save_loads_without_a_round() -> void:
 	assert_eq(profile.best_score, 4321)
 	assert_eq(Array(profile.discovered), ["slime_verde", "gota"])
 	assert_true(profile.saved_round.is_empty())
-	assert_eq_deep(options.to_dict(), {"sfx": 0.5, "vibration": false, "high_contrast": true})
+	assert_eq_deep(options.to_dict(), {"music": GameOptions.DEFAULT_MUSIC, "sfx": 0.5,
+		"vibration": false, "high_contrast": true})
 	assert_eq(int(SaveData.migrated(data).version), SaveData.VERSION)
 
 

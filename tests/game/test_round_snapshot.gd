@@ -11,7 +11,8 @@ var broken := [
 	["wait_left", -0.1], ["wait_left", Spawner.DROP_WAIT + 0.1], ["since_merge", -1.0],
 	["since_merge", Scoring.COMBO_WINDOW + 0.5], ["danger_time", Danger.LOSE_TIME],
 	["danger_time", -0.5], ["elapsed", -1.0], ["aim_x", "centro"], ["rng_state", 12.0],
-	["rng_state", "mucho"], ["creatures", {}], ["creatures", "lobo"]]
+	["rng_state", "mucho"], ["creatures", {}], ["creatures", "lobo"],
+	["breaks", PowerUps.MAX + 1.0], ["breaks", -1.0], ["swaps", 1.5]]
 ## What a creature in the jar can't have: [key, value]. Each is refused.
 const BROKEN_CREATURE := [
 	["level", 0.0], ["level", 9.0], ["level", 2.5], ["x", "fuera"], ["vy", null], ["age", -1.0]]
@@ -22,7 +23,8 @@ func test_a_round_goes_through_json_and_back() -> void:
 	assert_true(RoundSnapshot.is_valid(data))
 	var original := Fixtures.round_state()
 	var state := RoundSnapshot.state_of(data)
-	for key: String in ["score", "combo", "max_level", "current", "next", "can_drop"]:
+	for key: String in ["score", "combo", "max_level", "current", "next", "can_drop", "breaks",
+			"swaps"]:
 		assert_eq(state.get(key), original.get(key), key)
 	for key: String in ["wait_left", "since_merge", "danger_time", "elapsed"]:
 		assert_almost_eq(float(state.get(key)), float(original.get(key)), 0.0001, key)
@@ -93,12 +95,34 @@ func test_a_broken_creature_is_refused() -> void:
 
 func test_a_round_missing_a_field_is_refused() -> void:
 	for key: String in Fixtures.kept_round().keys():
+		if key in ["breaks", "swaps"]:
+			continue
 		var data := Fixtures.kept_round()
 		data.erase(key)
 		assert_false(RoundSnapshot.is_valid(data), "without %s" % key)
 	var data := Fixtures.kept_round()
 	data.creatures[2].erase("spin")
 	assert_false(RoundSnapshot.is_valid(data), "a creature without spin")
+
+
+func test_a_round_kept_before_the_helps_gets_one_of_each() -> void:
+	var data := Fixtures.kept_round()
+	data.erase("breaks")
+	data.erase("swaps")
+	assert_true(RoundSnapshot.is_valid(data))
+	var state := RoundSnapshot.state_of(data)
+	assert_eq(state.breaks, PowerUps.START)
+	assert_eq(state.swaps, PowerUps.START)
+
+
+func test_a_round_with_every_charge_of_one_help_and_none_of_the_other_is_accepted() -> void:
+	var data := Fixtures.kept_round()
+	data["breaks"] = PowerUps.MAX
+	data["swaps"] = 0
+	assert_true(RoundSnapshot.is_valid(data))
+	var state := RoundSnapshot.state_of(data)
+	assert_eq(state.breaks, PowerUps.MAX)
+	assert_eq(state.swaps, 0)
 
 
 func test_more_creatures_than_fit_are_refused() -> void:

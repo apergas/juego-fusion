@@ -2,8 +2,9 @@ class_name RoundSnapshot extends RefCounted
 ## A round in progress as a Dictionary, so it survives closing the game (SaveData keeps it in the
 ## save's "round", Profile.saved_round), and back. Pure: no nodes, no files. The Jar gives each
 ## creature as creature() (its level, where it is, how it is turned and moving, its age); the rest
-## is the GameState and the waiting creature's x. Spawner's generator goes as its state, written as
-## a String (JSON would round a 64-bit number). The combo's clock is kept at most at
+## is the GameState (the helps' charges included; a round kept before them, 0.2.0's, gets
+## PowerUps.START of each) and the waiting creature's x. Spawner's generator goes as its state,
+## written as a String (JSON would round a 64-bit number). The combo's clock is kept at most at
 ## Scoring.COMBO_WINDOW (later than that it is all the same, and JSON has no INF). is_valid()
 ## refuses what a round still going can't have: an unknown level, a negative score, a waiting
 ## creature Spawner can't give, a danger count already lost, more than MAX_CREATURES, a number
@@ -30,6 +31,7 @@ static func from(state: GameState, creatures: Array[Dictionary], aim_x: float) -
 		"current": state.current, "next": state.next, "can_drop": state.can_drop,
 		"wait_left": _finite(state.wait_left), "aim_x": _finite(aim_x),
 		"danger_time": _finite(state.danger_time),
+		"breaks": state.breaks, "swaps": state.swaps,
 		"elapsed": _finite(state.elapsed), "rng_state": str(state.rng.state),
 		"creatures": creatures.duplicate(true)}
 
@@ -56,6 +58,9 @@ static func is_valid(data: Dictionary) -> bool:
 	var rng_state: Variant = data.get("rng_state")
 	if not rng_state is String or not (rng_state as String).is_valid_int():
 		return false
+	for key: String in ["breaks", "swaps"]:
+		if data.has(key) and not _whole_in(data[key], 0, PowerUps.MAX):
+			return false
 	var creatures: Variant = data.get("creatures")
 	if not creatures is Array or (creatures as Array).size() > MAX_CREATURES:
 		return false
@@ -79,6 +84,8 @@ static func state_of(data: Dictionary) -> GameState:
 	state.wait_left = float(data.wait_left)
 	state.danger_time = float(data.danger_time)
 	state.elapsed = float(data.elapsed)
+	state.breaks = int(data.get("breaks", PowerUps.START))
+	state.swaps = int(data.get("swaps", PowerUps.START))
 	return state
 
 

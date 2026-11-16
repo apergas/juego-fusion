@@ -70,10 +70,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	var button := event as InputEventMouseButton
 	if button and button.button_index == MOUSE_BUTTON_LEFT:
 		get_viewport().set_input_as_handled()
-		_move_to(_world_x(button.position))
 		if button.pressed:
+			_move_to(_world_x(button.position))
 			_held = true
 		elif _held:
+			_move_to(_world_x(button.position))
 			_held = false
 			released.emit(x)
 		return

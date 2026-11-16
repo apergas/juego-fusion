@@ -1,11 +1,12 @@
 class_name Jar extends Node3D
 ## Node: the jar of one round and its creatures as physics bodies (CreatureBody). It only reports
 ## what happens (released: the finger let the waiting creature go; merge_found: two equal
-## creatures touch) and plays back what Game tells it (drop, show_waiting, merge, vanish, and
-## rebuild() for a kept round; snapshot() gives its creatures to RoundSnapshot). Built by
-## JarBuilder, with its backdrop and camera; its pieces are DropAim, MergeWatcher, DangerLine and
-## FusionFx. Game creates a new one for every round and calls step() every physics frame: no
-## piece runs its own _physics_process.
+## creatures touch) and plays back what Game tells it (drop, show_waiting, merge, vanish,
+## break_creature (Romper), and rebuild() for a kept round; snapshot() gives its creatures to
+## RoundSnapshot; creature_at() finds the one under a point). Built by JarBuilder, with its
+## backdrop and camera; its pieces are DropAim, MergeWatcher, DangerLine and FusionFx. Game creates
+## a new one for every round and calls step() every physics frame: no piece runs its own
+## _physics_process.
 
 signal released(x: float)
 signal merge_found(a: CreatureBody, b: CreatureBody)
@@ -145,6 +146,37 @@ func aim_x() -> float:
 
 func set_aim_x(value: float) -> void:
 	_aim.set_x(value)
+
+
+## The world point (in the jar's plane) under a point of the screen: the camera is orthographic
+## and head on.
+func world_point(screen: Vector2) -> Vector2:
+	var origin := camera.project_ray_origin(screen)
+	return Vector2(origin.x, origin.y)
+
+
+## The creature under point (PowerUps.hit()), or null; the ones taken by a merge don't count. A
+## creature is where its body is (its figure only stays upright while the body rolls).
+func creature_at(point: Vector2) -> CreatureBody:
+	var free: Array[CreatureBody] = []
+	var centres: Array[Vector2] = []
+	var radii: Array[float] = []
+	for body in _bodies:
+		if body.merged:
+			continue
+		free.append(body)
+		centres.append(Vector2(body.position.x, body.position.y))
+		radii.append(body.data.radius)
+	var index := PowerUps.hit(point, centres, radii)
+	return free[index] if index >= 0 else null
+
+
+## Romper: body goes at once, in a big burst of its colour.
+func break_creature(body: CreatureBody) -> void:
+	var at := body.position
+	var color := body.data.color
+	_remove(body)
+	_fx.burst(at, color, FusionFx.FLASH, FusionFx.FLASH_SPEED)
 
 
 func _fit() -> void:
