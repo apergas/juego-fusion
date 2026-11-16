@@ -1,10 +1,12 @@
 class_name Game extends Node
 ## One play session, created by TitleScreen (setup() before add_child); run on its own
 ## (res://scenes/game/game.tscn) it loads the save and makes its own AudioDirector. A
-## coordinator: it owns the round's GameState, the current Jar (a new one each round) and the
-## game's clock (the round's time, the wait after a drop and the combo's clock, on the physics
-## frame). The Jar only reports (released, merge_found); the rules (Chain, Spawner, Scoring) decide;
-## Game plays it back through the Jar. Its piece GameAutoplay plays by itself, only with --autoplay. Esc goes back to the title
+## coordinator: it owns the round's GameState, the current Jar (a new one each round), the game's
+## clock (the round's time, the wait after a drop, the combo's clock and the danger's count, all
+## on the physics frame) and the profile's record, which it saves at the end of each round. The
+## Jar only reports (released, merge_found); the rules (Chain, Spawner, Scoring, Danger) decide;
+## Game plays it back through the Jar and the windows. Its pieces: the EndWindow (created at the
+## end of a round) and GameAutoplay (only with --autoplay). Esc goes back to the title
 ## (quit_to_title).
 
 signal quit_to_title
@@ -14,6 +16,7 @@ var _audio: AudioDirector
 var _options: GameOptions
 var _profile: Profile
 var _jar: Jar
+var _end: EndWindow
 var _autopilot: GameAutoplay
 ## How many rounds this session has started: the seed of each is --seed=<n> plus it.
 var _round := 0
@@ -38,8 +41,11 @@ func _ready() -> void:
 		_audio.set_volume(_options.sfx_volume)
 	if RunFlags.autoplay():
 		_autopilot = GameAutoplay.new()
-		_autopilot.setup(func() -> GameState: return state, func() -> Jar: return _jar)
+		_autopilot.setup(func() -> GameState: return state, func() -> Jar: return _jar,
+			RunFlags.autoplay_games(), RunFlags.autoplay_save())
 		_autopilot.drop = drop_at
+		_autopilot.restart = _restart
+		_autopilot.quit_requested.connect(_quit)
 		add_child(_autopilot)
 	_start_round()
 
@@ -73,7 +79,7 @@ func drop_at(x: float) -> void:
 	Spawner.advance(state)
 
 
-## One physics frame of the round: its clocks, then the jar.
+## One physics frame of the round: its clocks, the jar, then the danger's count.
 func _tick(delta: float) -> void:
 	state.elapsed += delta
 	state.since_merge += delta
@@ -82,6 +88,11 @@ func _tick(delta: float) -> void:
 		if state.wait_left <= 0.0:
 			_present()
 	_jar.step(delta)
+	var over := Danger.is_over(_jar.highest_top(JarSpec.SETTLE_TIME))
+	state.danger_time = Danger.step(state.danger_time, over, delta)
+	_jar.show_danger(Danger.fraction(state.danger_time))
+	if Danger.lost(state.danger_time):
+		_lose()
 
 
 ## A new round: a new GameState, its first creatures and a new Jar in place of the old one.
@@ -133,6 +144,33 @@ func _on_merge_found(a: CreatureBody, b: CreatureBody) -> void:
 ## A creature has come into the jar (dropped or made by a merge).
 func _note_creature(data: CreatureData) -> void:
 	state.max_level = maxi(state.max_level, data.level)
+
+
+## The jar overflowed: everything stops, the record is checked and saved, the end window opens.
+func _lose() -> void:
+	state.over = true
+	state.can_drop = false
+	_jar.freeze_all()
+	_jar.show_danger(0.0)
+	_audio.play_sfx(SfxLibrary.LOSE)
+	var new_record := Scoring.record(_profile, state.score)
+	var saved := SaveStore.save(_profile, _options)
+	_end = EndWindow.new(state.score, Chain.data(state.max_level).display_name, new_record)
+	_end.set_audio(_audio)
+	_end.again_requested.connect(_restart)
+	_end.quit_requested.connect(_quit)
+	add_child(_end)
+	if _autopilot:
+		_autopilot.on_round_over({"score": state.score, "max_level": state.max_level,
+			"seconds": state.elapsed, "new_record": new_record}, saved)
+
+
+## Otra vez: the end window goes and a new round starts.
+func _restart() -> void:
+	if _end:
+		_end.queue_free()
+		_end = null
+	_start_round()
 
 
 ## Back to the title; a Game run on its own (nothing above it) quits instead.

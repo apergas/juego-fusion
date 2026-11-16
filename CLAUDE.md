@@ -33,6 +33,8 @@ What the code does not explain:
 - A creature in the jar is a `CreatureBody` (`RigidBody3D`, a sphere of its radius) locked on Z and turning only around it; the waiting creature at the top is only a figure (`DropAim`), not a body. Touches arrive as mouse events (`emulate_mouse_from_touch`), so `DropAim` reads only the mouse; a Control under the finger (the pause button) takes the event first.
 - `MergeWatcher` polls each creature's `get_colliding_bodies()` every physics frame (contact monitor on) and marks both of a pair `merged` at once; `Jar.merge()` takes the two out of the physics space at once (`remove_child`) and the new creature's collider grows from 0.6 to its radius in 0.2 s (`CreatureBody.grow()`), so a merge pushes instead of kicking.
 - Flags (all read by `RunFlags`): `--autoplay` (rounds that play themselves; the title is skipped and the run quits at the end), `--autoplay-games=N`, `--autoplay-save`, `--autoplay-menu`, `--seed=<n>` (the first round's `Spawner` seed; each next round adds 1) and `--touch`. Physics is not exactly the same between runs, even with a seed.
+- How to run, record and measure autoplay is the project skill `fusion-autoplay` (`.claude/skills/fusion-autoplay/SKILL.md`). A round on autoplay ends by itself one second after the loss; `--autoplay-games=N` prints the averages after the N rounds and quits.
+- The danger: `Game` asks `Jar.highest_top(JarSpec.SETTLE_TIME)` every physics frame and keeps `Danger`'s count in `GameState.danger_time`; at the loss `Jar.freeze_all()` freezes every body and the record is saved before the `EndWindow` opens.
 
 ## Conventions
 

@@ -2,7 +2,7 @@ class_name Jar extends Node3D
 ## Node: the jar of one round and its creatures as physics bodies (CreatureBody). It only
 ## reports what happens (released: the finger let the waiting creature go; merge_found: two equal creatures touch) and plays back what
 ## Game tells it (drop, show_waiting, merge, vanish). Built by JarBuilder, with its backdrop and camera; its
-## pieces are DropAim and MergeWatcher. Game creates a new one for every round and calls step() every physics
+## pieces are DropAim, MergeWatcher and DangerLine. Game creates a new one for every round and calls step() every physics
 ## frame: no piece runs its own _physics_process.
 
 signal released(x: float)
@@ -12,6 +12,7 @@ var camera: Camera3D
 var _bodies: Array[CreatureBody] = []
 var _aim: DropAim
 var _watcher: MergeWatcher
+var _danger: DangerLine
 
 
 func _ready() -> void:
@@ -27,6 +28,8 @@ func _ready() -> void:
 	_watcher = MergeWatcher.new()
 	_watcher.touched.connect(merge_found.emit)
 	add_child(_watcher)
+	_danger = DangerLine.new()
+	add_child(_danger)
 
 
 func step(delta: float) -> void:
@@ -34,6 +37,7 @@ func step(delta: float) -> void:
 		body.age += delta
 	_aim.step(delta)
 	_watcher.step(_bodies)
+	_danger.step(delta)
 
 
 ## The waiting creature falls from the top at x (kept inside the jar).
@@ -68,6 +72,28 @@ func show_waiting(data: CreatureData) -> void:
 ## The creatures in the jar (read only: the autoplay and Danger look at them).
 func creatures() -> Array[CreatureBody]:
 	return _bodies
+
+
+## The highest top of the creatures that have been at least min_age in the jar; -INF for none.
+func highest_top(min_age: float) -> float:
+	var top := -INF
+	for body in _bodies:
+		if body.age >= min_age:
+			top = maxf(top, body.top())
+	return top
+
+
+## fraction of Danger.LOSE_TIME gone (0: calm).
+func show_danger(fraction: float) -> void:
+	_danger.set_alert(fraction)
+
+
+## The round is lost: every creature stops where it is and nothing more can be dropped.
+func freeze_all() -> void:
+	_aim.enabled = false
+	_aim.hide_waiting()
+	for body in _bodies:
+		body.freeze = true
 
 
 func _fit() -> void:
