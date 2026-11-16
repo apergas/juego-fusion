@@ -20,9 +20,28 @@ static func save(profile: Profile, options: GameOptions) -> Dictionary:
 
 
 ## Reads the save into profile and options; false (and nothing changed) if there is none or it is
-## damaged or of an unknown version.
+## damaged or of an unknown version (a rejected file is first kept as <file>.bak).
 static func load_into(profile: Profile, options: GameOptions) -> bool:
-	return SaveData.apply(_read(path()), profile, options)
+	var file_path := path()
+	if SaveData.apply(_read(file_path), profile, options):
+		return true
+	if FileAccess.file_exists(file_path):
+		_keep_backup(file_path)
+	return false
+
+
+## A file that exists but was rejected would be overwritten by the next save: keep its text once
+## as <file>.bak (an older .bak is replaced). Read and write of the text, so it works on the web.
+static func _keep_backup(file_path: String) -> void:
+	var backup := file_path + ".bak"
+	var text := FileAccess.get_file_as_string(file_path)
+	var file := FileAccess.open(backup, FileAccess.WRITE)
+	if file == null:
+		push_warning("No se pudo guardar la copia %s (error %d)" % [backup, FileAccess.get_open_error()])
+		return
+	file.store_string(text)
+	file.close()
+	push_warning("Partida rechazada: %s se guarda en %s" % [file_path, backup])
 
 
 static func _write(file_path: String, data: Dictionary) -> bool:
