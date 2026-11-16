@@ -2,8 +2,7 @@ class_name GameAutoplay extends Node
 ## Node, a piece of Game, only with --autoplay: plays rounds by itself. Each time a creature
 ## waits it thinks THINK seconds and drops it over the highest settled creature of its own level,
 ## or, with none, where the pile is lowest (_choose_x()). It prints what a reader of the log
-## follows: each drop (`Suelta: gota en x=1.2`), merge (`Fusión: slime_azul (combo 2)`) and new
-## creature (`Nueva: lobo`), the result of each round (`Partida: 1240 puntos, máxima golem,
+## follows: each drop (`Suelta: gota en x=1.2`), merge (`Fusión: slime_azul (combo 2)`), the result of each round (`Partida: 1240 puntos, máxima golem,
 ## 3 min 10 s`) and, with --autoplay-games=N, the averages of the N rounds (`Media de ...`); with
 ## --autoplay-save, the save written and read back after each round (`Guardado:` and `Cargado:`,
 ## the same). END_WAIT seconds after a round it starts the next (restart) or, after the last,

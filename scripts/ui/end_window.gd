@@ -20,5 +20,14 @@ func _init(score: int, biggest: String, new_record: bool) -> void:
 	add_line(BIGGEST_TEXT % biggest, &"")
 	if new_record:
 		add_line(RECORD_TEXT, UiTheme.POSITIVE)
-	add_button(AGAIN_TEXT).pressed.connect(again_requested.emit)
-	add_button(QUIT_TEXT).pressed.connect(quit_requested.emit)
+	var again := add_button(AGAIN_TEXT)
+	var quit := add_button(QUIT_TEXT)
+	again.pressed.connect(_choose.bind(again_requested, [again, quit]))
+	quit.pressed.connect(_choose.bind(quit_requested, [again, quit]))
+
+
+## The first press wins: both buttons go off, so a second press in the same frame does nothing.
+func _choose(requested: Signal, buttons: Array) -> void:
+	for button: Button in buttons:
+		button.disabled = true
+	requested.emit()
