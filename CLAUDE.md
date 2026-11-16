@@ -12,12 +12,13 @@ It is the second game after *Villaclaro* (`C:\Users\peixe\Documents\rpg-turnos`)
 
 ## Layout
 
-The code says what each script does; this is the map, plus what the code can't tell you. Written so far: the title, the options, the effects, the jar's builder and an empty `Game`; the rest is the layout the 0.1.0 plan builds.
+The code says what each script does; this is the map, plus what the code can't tell you. Version 0.1.0 built it ([plan](docs/plans/2026-11-16-version-0-1-0.md)).
 
 - `scenes/title/` + `scripts/title/` — `TitleScreen`, the main scene: loads and applies the options, owns the only `AudioDirector`, then creates a `Game`.
-- `scenes/game/` + `scripts/game/` — `Game` (one play session, a coordinator over its pieces) and the pure rules it owns (`GameState`, `SaveData` / `SaveStore`, `RunFlags`, `Chain`, `Scoring`, `Spawner`, `Danger`, `Bestiary`...).
-- `scripts/jar/` — `Jar` (the jar and its creatures as physics bodies; it only reports what happens) and its pieces (`DropAim`, `MergeWatcher`, `DangerLine`, `FusionFx`); the builders `JarBuilder` and `CreatureLooks`.
-- `scripts/ui/` — windows and the HUD; `scripts/audio/` — effects (and later music), all synthesized in code.
+- `scenes/game/` + `scripts/game/` — `Game` (one play session, a coordinator over its pieces) and the pure rules it owns (`GameState`, `SaveData` / `SaveStore`, `RunFlags`, `Device`, `GameOptions`, `Profile`, `Chain`, `Spawner`, `Scoring`, `Danger`, `Bestiary`, `JarSpec`, `CreatureData`) and its pieces (`GameAutoplay`).
+- `scripts/jar/` — `Jar` (the jar and its creatures as physics bodies; it only reports what happens) and its pieces (`DropAim`, `MergeWatcher`, `DangerLine`, `FusionFx`, `CreatureBody`); the builders `JarBuilder`, `CreatureLooks` and `LowPoly`.
+- `scripts/ui/` — windows (`ModalWindow` and its `EndWindow`, `PauseWindow`, `BestiaryWindow`, `OptionsWindow`), the `Hud` with its `PauseButton`, `CreatureView`, `UiTheme`, `DisplaySettings` and the generated `UiTokens`; `scripts/audio/` — effects (and later music), all synthesized in code.
+- `scripts/tools/` — offline tools, excluded from the export: `pwa_icons.gd`.
 - `data/creatures/<id>.tres` — `CreatureData`: one per link of the chain (`look` picks which features `CreatureLooks` adds to the faceted ball: gota, slime, slime_mejillas, seta, murcielago, lobo, golem, dragon; `color` is the body and its particles, `accent` the features).
 - `assets/fonts/` — Baloo 2 (display) and Nunito (ui), variable, OFL, copied from Villaclaro; `assets/CREDITS.md` says where every asset comes from.
 - `addons/design_system/` — the design system's core, a **git submodule** (its own repository, `godot-design-system`), the same in every game and never edited from here. The game's layer is `design_system.json` (every path the tools read), `docs/design-system/` (its tokens, its docs, its components) and `UiTheme`.
