@@ -19,6 +19,7 @@ Physics is not exactly the same between runs, even with `--seed`: read the balan
 - **A fixed seed** for the Spawner (the first round's; each next round adds 1): add `--seed=<n>`.
 - **Balance, 20 rounds** (the spec's check: a mean of 2 to 8 minutes and creature 6 in most rounds): `time APPDATA="$S/appdata" ./tools/godot.cmd --headless --path . --fixed-fps 60 --quit-after 700000 -- --autoplay --autoplay-games=20 > $S/log.txt 2>&1`, then `grep -E "^(Partida|Media)" $S/log.txt` and `grep -E "ERROR|WARNING" $S/log.txt` (nothing but, at most, Jolt's job-system warning). The last line is `Media de 20 partidas: <points> puntos, máxima <id> (<n> de 20), <time>, 6 o más en <n> de 20`.
 - **Save round trip:** add `--autoplay-save` to a one-round run; the `Guardado:` and `Cargado:` lines must be identical.
+- **The kept round** (`--autoplay-resume`): add it to a one-round run; 20 s in it prints `Tarro guardado: …` and `Tarro leído: …` (identical) and `Tarro seguido: N criaturas, P puntos`, then the round goes on to its `Partida:` line.
 - **Without the title:** `res://scenes/game/game.tscn` before `--`, e.g. `APPDATA="$S/appdata" ./tools/godot.cmd --path . res://scenes/game/game.tscn -- --autoplay`.
 - **Phone layout on the desktop:** `APPDATA="$S/appdata" ./tools/godot.cmd --path . --resolution 360x740 -- --touch` (the mouse acts as a finger).
 
@@ -34,7 +35,7 @@ Physics is not exactly the same between runs, even with `--seed`: read the balan
   window/size/viewport_height=1480
   ```
   — the canvas a 360 × 740 phone gets with aspect expand, at twice its size — run the same command, then **delete `override.cfg`**.
-- **The menu tour** (`--autoplay-menu`): `APPDATA="$S/appdata" ./tools/godot.cmd --path . --write-movie $S/frames/f.png --fixed-fps 10 --quit-after 200 -- --autoplay --autoplay-menu`: the title (frames 0–19), the bestiary (20–39), the bestiary scrolled to its end (40–59), the options (60–79), then the game, whose pause opens 6 s into the round (about frame 140), Opciones opens over it 2 s later (about 160) and everything closes 2 s after that (about 180). Any option in a run: write it in the same save first, e.g. `"options": {"high_contrast": true}`. To see discovered cards, write `save_autoplay.json` first, e.g. `{"version": 1, "best_score": 0, "discovered": ["gota", "slime_verde"], "options": {}}`, in `$S/appdata/Godot/app_userdata/juego-fusion/`.
+- **The menu tour** (`--autoplay-menu`): `APPDATA="$S/appdata" ./tools/godot.cmd --path . --write-movie $S/frames/f.png --fixed-fps 10 --quit-after 200 -- --autoplay --autoplay-menu`: the title (frames 0–19), the bestiary (20–39), the bestiary scrolled to its end (40–59), the options (60–79), then the game, whose pause opens 6 s into the round (about frame 140), Opciones opens over it 2 s later (about 160) and everything closes 2 s after that (about 180). Any option in a run: write it in the same save first, e.g. `"options": {"high_contrast": true}`. To see discovered cards, write `save_autoplay.json` first, e.g. `{"version": 2, "best_score": 0, "discovered": ["gota", "slime_verde"], "options": {}, "round": {}}`, in `$S/appdata/Godot/app_userdata/juego-fusion/`.
 
 ## Measured
 

@@ -1,15 +1,22 @@
 class_name Game extends Node
 ## One play session, created by TitleScreen (setup() before add_child); run on its own
-## (res://scenes/game/game.tscn) it loads the save and makes its own AudioDirector. A
-## coordinator: it owns the round's GameState, the current Jar (a new one each round), the game's
-## clock (the round's time, the wait after a drop, the combo's clock and the danger's count, all
-## on the physics frame) and the profile's record and bestiary, which it saves at the end of each round and at each discovery. The
-## Jar only reports (released, merge_found); the rules (Chain, Spawner, Scoring, Danger, Bestiary) decide;
-## Game plays it back through the Jar, the Hud and the windows. Its pieces: the Hud, the PauseWindow and the EndWindow (created
-## when needed) and GameAutoplay (only with --autoplay). Esc and the HUD's button open the pause; Salir and Salir al título go back to the title
-## (quit_to_title).
+## (res://scenes/game/game.tscn) it loads the save and makes its own AudioDirector. A coordinator:
+## it owns the round's GameState, the current Jar (a new one each round), the game's clock (the
+## round's time, the wait after a drop, the combo's clock and the danger's count, all on the
+## physics frame) and the profile's record, bestiary and kept round, which it saves at the end of
+## each round, at each discovery and whenever the player leaves a round still going
+## (keep_round()). The Jar only reports (released, merge_found); the rules (Chain, Spawner,
+## Scoring, Danger, Bestiary, RoundSnapshot) decide; Game plays it back through the Jar, the Hud
+## and the windows. Its pieces: the Hud, the PauseWindow, the OptionsWindow over it and the
+## EndWindow (created when needed) and GameAutoplay (only with --autoplay). Esc, the HUD's button
+## and losing the focus (FOCUS_LOST, never on autoplay) open the pause; a kept round comes back
+## in the pause (resume_round()). Salir and Salir al título go back to the title (quit_to_title).
 
 signal quit_to_title
+
+## Losing the focus: another app, another tab, another window, the phone's home screen.
+const FOCUS_LOST := [NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_WINDOW_FOCUS_OUT,
+	NOTIFICATION_APPLICATION_PAUSED]
 
 var state: GameState
 var _audio: AudioDirector
@@ -23,13 +30,17 @@ var _options_window: OptionsWindow
 var _autopilot: GameAutoplay
 ## How many rounds this session has started: the seed of each is --seed=<n> plus it.
 var _round := 0
+## The session starts from the profile's kept round (the title's Seguir).
+var _resume := false
 
 
-## audio, options and profile come from the title screen.
-func setup(audio: AudioDirector, options: GameOptions, profile: Profile) -> void:
+## audio, options and profile come from the title screen; resume is its Seguir.
+func setup(audio: AudioDirector, options: GameOptions, profile: Profile,
+		resume := false) -> void:
 	_audio = audio
 	_options = options
 	_profile = profile
+	_resume = resume
 
 
 func _ready() -> void:
@@ -48,16 +59,21 @@ func _ready() -> void:
 	if RunFlags.autoplay():
 		_autopilot = GameAutoplay.new()
 		_autopilot.setup(func() -> GameState: return state, func() -> Jar: return _jar,
-			RunFlags.autoplay_games(), RunFlags.autoplay_save())
+			RunFlags.autoplay_games(), RunFlags.autoplay_save(), RunFlags.autoplay_resume())
 		_autopilot.drop = drop_at
 		_autopilot.restart = _restart
 		_autopilot.open_pause = open_pause
 		_autopilot.close_pause = close_pause
 		_autopilot.open_options = _open_options
 		_autopilot.close_options = _close_options
+		_autopilot.keep_round = keep_round
+		_autopilot.resume_round = resume_round
 		_autopilot.quit_requested.connect(_quit)
 		add_child(_autopilot)
-	_start_round()
+	if _resume and not _profile.saved_round.is_empty():
+		resume_round(_profile.saved_round)
+	else:
+		_start_round()
 	if _autopilot and RunFlags.autoplay_menu():
 		_autopilot.start_menu_tour()
 
@@ -72,6 +88,15 @@ func _physics_process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
+		open_pause()
+
+
+## Closing the window keeps the round; losing the focus opens the pause (which keeps it too),
+## never on autoplay (its windows are recorded without the focus).
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		keep_round()
+	elif what in FOCUS_LOST and _autopilot == null:
 		open_pause()
 
 
@@ -93,10 +118,11 @@ func drop_at(x: float) -> void:
 
 
 ## The pause window over a stopped jar (the whole tree pauses; the window keeps running). Not
-## once the round is over.
+## once the round is over. Opening it keeps the round (keep_round()).
 func open_pause() -> void:
-	if state.over or _pause:
+	if state == null or state.over or _pause:
 		return
+	keep_round()
 	get_tree().paused = true
 	_pause = PauseWindow.new()
 	_pause.set_audio(_audio)
@@ -118,6 +144,32 @@ func close_pause() -> void:
 	_pause.queue_free()
 	_pause = null
 	get_tree().paused = false
+
+
+## The round still going into the profile (RoundSnapshot) and the save, so the title can offer
+## Seguir: when the pause opens and when the window closes. Returns what was kept ({} if
+## nothing: no round, or a lost one).
+func keep_round() -> Dictionary:
+	if state == null or state.over or _jar == null:
+		return {}
+	_profile.saved_round = RoundSnapshot.from(state, _jar.snapshot(), _jar.aim_x())
+	SaveStore.save(_profile, _options)
+	return _profile.saved_round
+
+
+## A kept round (a valid RoundSnapshot) in place of the current one: its state, its creatures,
+## the waiting one and its x. It opens in the pause (not on autoplay), so the player comes back
+## ready.
+func resume_round(data: Dictionary) -> void:
+	state = RoundSnapshot.state_of(data)
+	_new_jar()
+	_jar.rebuild(RoundSnapshot.creatures_of(data))
+	_show_round()
+	if state.can_drop:
+		_present()
+	_jar.set_aim_x(RoundSnapshot.aim_x_of(data))
+	if _autopilot == null:
+		open_pause()
 
 
 ## Opciones over the pause: each change is put into effect and saved, as on the title. The pause
@@ -165,24 +217,43 @@ func _tick(delta: float) -> void:
 		_lose()
 
 
-## A new round: a new GameState, its first creatures and a new Jar in place of the old one.
+## A new round: the kept one is forgotten, a new GameState, its first creatures and a new Jar.
 func _start_round() -> void:
-	if _jar:
-		remove_child(_jar)
-		_jar.queue_free()
+	_forget_round()
 	var seed_flag := RunFlags.seed()
 	state = GameState.new(seed_flag + _round if seed_flag >= 0 else -1)
 	_round += 1
 	Spawner.start(state)
+	_new_jar()
+	_show_round()
+	_present()
+
+
+## A new Jar in place of the old one.
+func _new_jar() -> void:
+	if _jar:
+		remove_child(_jar)
+		_jar.queue_free()
 	_jar = Jar.new()
 	_jar.released.connect(drop_at)
 	_jar.merge_found.connect(_on_merge_found)
 	add_child(_jar)
+
+
+## The HUD of the round in state.
+func _show_round() -> void:
 	_hud.clear()
-	_hud.set_score(0)
+	_hud.set_score(state.score)
 	_hud.set_record(_profile.best_score)
 	_hud.set_next(Chain.data(state.next))
-	_present()
+
+
+## A new round throws the kept one away, and the save says so at once (only if there was one).
+func _forget_round() -> void:
+	if _profile.saved_round.is_empty():
+		return
+	_profile.saved_round = {}
+	SaveStore.save(_profile, _options)
 
 
 ## The waiting creature appears at the top of the jar.
@@ -237,7 +308,8 @@ func _vibrate(level: int) -> void:
 		Input.vibrate_handheld(Chain.vibration_ms(level))
 
 
-## The jar overflowed: everything stops, the record is checked and saved, the end window opens.
+## The jar overflowed: everything stops, the record is checked and saved (and the kept round
+## forgotten in the same save), the end window opens.
 func _lose() -> void:
 	state.over = true
 	state.can_drop = false
@@ -245,6 +317,7 @@ func _lose() -> void:
 	_jar.show_danger(0.0)
 	_audio.play_sfx(SfxLibrary.LOSE)
 	var new_record := Scoring.record(_profile, state.score)
+	_profile.saved_round = {}
 	_hud.set_record(_profile.best_score)
 	var saved := SaveStore.save(_profile, _options)
 	_end = EndWindow.new(state.score, Chain.data(state.max_level).display_name, new_record)

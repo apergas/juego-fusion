@@ -47,6 +47,11 @@ func hide_waiting() -> void:
 	_line.visible = false
 
 
+## The waiting creature (and the line) at value, kept inside the jar: a kept round's aim.
+func set_x(value: float) -> void:
+	_move_to(value)
+
+
 func step(delta: float) -> void:
 	if not enabled:
 		return
