@@ -1,6 +1,6 @@
 # Fundamentos de ¡Plop!
 
-Las escalas, las medidas genéricas, los diez estilos de texto y el papel de cada semántico están en los [fundamentos del núcleo](../../addons/design_system/docs/2-fundamentos.md). Aquí está lo del juego: un fondo morado oscuro para que las criaturas destaquen, ventanas moradas translúcidas con marco claro, un acento amarillo para los puntos y lo importante, y texto blanco. Los contrastes están en [accesibilidad](4-accesibilidad.md).
+Las escalas, las medidas genéricas, los diez estilos de texto y el papel de cada semántico están en los [fundamentos del núcleo](../addons/design_system/docs/2-fundamentos.md). Aquí está lo del juego: un fondo morado oscuro para que las criaturas destaquen, ventanas moradas translúcidas con marco claro, un acento amarillo para los puntos y lo importante, y texto blanco. Los contrastes están en [accesibilidad](4-accesibilidad.md).
 
 ## Los valores que el juego da al núcleo
 
@@ -51,7 +51,7 @@ No son de la interfaz, pero son la paleta del juego: `JarBuilder`, `DropAim`, `D
 | `scene-mote` | las motas de luz que flotan despacio |
 | `jar-back` | el fondo del tarro, algo más oscuro que la escena |
 | `jar-frame` | el marco claro del tarro, como de cristal |
-| `aim-line` | la línea tenue que marca dónde caerá la criatura |
+| `aim-line` | la línea blanca al 45 % que marca dónde caerá la criatura |
 | `danger-line` | la línea de peligro en calma |
 | `danger-line-alert` | la línea de peligro mientras cuenta: parpadea, más deprisa cuanto menos falta |
 | `creature-silhouette` | la silueta de una criatura sin descubrir |
@@ -74,7 +74,6 @@ Toda la interfaz se dibuja 1,25 veces más grande que sus tokens (`DisplaySettin
 | `next-view` | 80 | la criatura de «Siguiente» |
 | `bestiary-view` | 160 | la criatura de una ficha del bestiario |
 | `slider-w` | 240 | el deslizador de efectos |
-| `hud-notice-top` | 136 | dónde empieza el aviso, bajo la fila del HUD |
 | `hud-combo-top` | 196 | dónde empieza «¡Combo ×n!», sobre la boca del tarro |
 
 ## Capas

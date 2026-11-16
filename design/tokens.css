@@ -1,4 +1,4 @@
-/* Generado por addons/design_system/tools/gen_ui_tokens.gd desde docs/design-system/tokens.json y addons/design_system/tokens/base.json. No se edita a mano: cambia tokens.json y regenera. */
+/* Generado por addons/design_system/tools/gen_ui_tokens.gd desde design/tokens.json y addons/design_system/tokens/base.json. No se edita a mano: cambia tokens.json y regenera. */
 :root {
 	--surface-window: #1d1238e6;
 	--surface-window-solid: #1d1238;
@@ -38,7 +38,7 @@
 	--scene-mote: #fff1b880;
 	--jar-back: #0a0618a6;
 	--jar-frame: #e9e0ffb3;
-	--aim-line: #ffffff40;
+	--aim-line: #ffffff73;
 	--danger-line: #ffffff59;
 	--danger-line-alert: #ff4a4a;
 	--creature-silhouette: #0b0716;
@@ -77,7 +77,6 @@
 	--next-view: 80px;
 	--bestiary-view: 160px;
 	--slider-w: 240px;
-	--hud-notice-top: 136px;
 	--hud-combo-top: 196px;
 	--opacity-window: 0.9;
 	--opacity-faded: 0.5;

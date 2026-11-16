@@ -1,15 +1,20 @@
 class_name GameAutoplay extends Node
-## Node, a piece of Game, only with --autoplay: plays rounds by itself. With --autoplay-menu it opens the pause once, TOUR_PAUSE_AT seconds into the first round, then Opciones over it, TOUR_STEP seconds each (start_menu_tour()). Each time a creature
+## Node, a piece of Game, only with --autoplay: plays rounds by itself. Each time a creature
 ## waits it thinks THINK seconds and drops it over the highest settled creature of its own level,
 ## or, with none, where the pile is lowest (_choose_x()). It prints what a reader of the log
 ## follows: each drop (`Suelta: gota en x=1.2`), merge (`Fusión: slime_azul (combo 2)`) and new
 ## creature (`Nueva: lobo`), the result of each round (`Partida: 1240 puntos, máxima golem,
 ## 3 min 10 s`) and, with --autoplay-games=N, the averages of the N rounds (`Media de ...`); with
 ## --autoplay-save, the save written and read back after each round (`Guardado:` and `Cargado:`,
-## the same). END_WAIT seconds after a round it starts the next (restart) or, after the last,
-## asks to quit (quit_requested). Each round it checks that no creature left the plane. Uses only
-## Game's Callables (drop, restart, open_pause, close_pause, open_options, close_options) and the Jar's public functions; never stores Game or a Jar
-## (it asks jar_of each time: the Jar changes every round).
+## the same); with --autoplay-resume, RESUME_AT seconds into the first round, the round kept as if
+## the player left and read back from the file (`Tarro guardado:` and `Tarro leído:`, the same),
+## then played on from there (`Tarro seguido:`). With --autoplay-menu it opens the pause once,
+## TOUR_PAUSE_AT seconds into the first round, then Opciones over it, TOUR_STEP seconds each
+## (start_menu_tour()). END_WAIT seconds after a round it starts the next (restart) or, after the
+## last, asks to quit (quit_requested). Each round it checks that no creature left the plane. Uses
+## only Game's Callables (drop, restart, open_pause, close_pause, open_options, close_options,
+## keep_round, resume_round) and the Jar's public functions; never stores Game or a Jar (it asks
+## jar_of each time: the Jar changes every round).
 
 signal quit_requested
 
@@ -34,10 +39,16 @@ var open_pause: Callable
 var close_pause: Callable
 var open_options: Callable
 var close_options: Callable
+## keep_round.call() -> Dictionary and resume_round.call(data): Game's keep_round() and
+## resume_round() (--autoplay-resume).
+var keep_round: Callable
+var resume_round: Callable
 var _state_of: Callable
 var _jar_of: Callable
 var _games := 1
 var _print_save := false
+var _check_resume := false
+var _resumed := false
 var _think := THINK
 ## Counts down after a round; below 0, no round is over.
 var _end_wait := -1.0
@@ -47,16 +58,20 @@ var _results: Array[Dictionary] = []
 ## --autoplay-menu: when the pause opens (seconds of the round) and how long each step stays.
 const TOUR_PAUSE_AT := 6.0
 const TOUR_STEP := 2.0
+## --autoplay-resume: seconds into the first round when it leaves and comes back.
+const RESUME_AT := 20.0
 #endregion
 
 
 ## state_of and jar_of return the current GameState and Jar; games is --autoplay-games,
-## print_save --autoplay-save.
-func setup(state_of: Callable, jar_of: Callable, games: int, print_save: bool) -> void:
+## print_save --autoplay-save, check_resume --autoplay-resume.
+func setup(state_of: Callable, jar_of: Callable, games: int, print_save: bool,
+		check_resume: bool) -> void:
 	_state_of = state_of
 	_jar_of = jar_of
 	_games = games
 	_print_save = print_save
+	_check_resume = check_resume
 
 
 ## Every physics frame (Game._physics_process()), also while a round is over.
@@ -67,6 +82,10 @@ func step(delta: float) -> void:
 			_next_round()
 		return
 	var state: GameState = _state_of.call()
+	if _check_resume and not _resumed and not state.over and state.elapsed >= RESUME_AT:
+		_resumed = true
+		_leave_and_come_back()
+		return
 	if state.over or not state.can_drop:
 		_think = THINK
 		return
@@ -193,6 +212,24 @@ func _print_round_trip(saved: Dictionary) -> void:
 	SaveStore.load_into(profile, options)
 	print("Guardado: %s" % JSON.stringify(saved))
 	print("Cargado: %s" % JSON.stringify(SaveData.from(profile, options)))
+
+
+## --autoplay-resume: the round kept as if the player left, read back from the file into a fresh
+## profile and played on from there. The two lines must be identical (RoundSnapshot.normalized()
+## reads the kept round's whole numbers and the file's floats the same).
+func _leave_and_come_back() -> void:
+	var kept: Dictionary = keep_round.call()
+	var profile := Profile.new()
+	SaveStore.load_into(profile, GameOptions.new())
+	if kept.is_empty() or profile.saved_round.is_empty():
+		push_warning("No se ha guardado el tarro")
+		return
+	print("Tarro guardado: %s" % JSON.stringify(RoundSnapshot.normalized(kept)))
+	print("Tarro leído: %s" % JSON.stringify(RoundSnapshot.normalized(profile.saved_round)))
+	resume_round.call(profile.saved_round)
+	var state: GameState = _state_of.call()
+	var jar: Jar = _jar_of.call()
+	print("Tarro seguido: %d criaturas, %d puntos" % [jar.creatures().size(), state.score])
 
 
 ## The creatures are locked on Z: one away from z 0 means the lock failed.

@@ -1,9 +1,9 @@
 class_name SaveStore extends RefCounted
-## Reads and writes the one save file, user://save.json: the record, the bestiary and the
-## options (SaveData). On the web Godot keeps user:// in the browser (IndexedDB), and a file is
-## stored when it is closed. Runs with --autoplay use their own file, save_autoplay.json, so they
-## never touch the player's. Copied from Villaclaro's scripts/game/save_store.gd, without its
-## slots and its separate options file.
+## Reads and writes the one save file, user://save.json: the record, the bestiary, the options and
+## the round in progress the player left (SaveData). On the web Godot keeps user:// in the browser
+## (IndexedDB), and a file is stored when it is closed. Runs with --autoplay use their own file,
+## save_autoplay.json, so they never touch the player's. Copied from Villaclaro's
+## scripts/game/save_store.gd, without its slots and its separate options file.
 
 const PATH := "user://save.json"
 const AUTOPLAY_PATH := "user://save_autoplay.json"

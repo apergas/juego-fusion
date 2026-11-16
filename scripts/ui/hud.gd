@@ -1,10 +1,9 @@
 class_name Hud extends CanvasLayer
-## Node, a piece of Game: the round's HUD on layer-hud. Top left the points (SCORE) and the record;
-## top right «Siguiente» with the creature after the waiting one (a CreatureView) and the pause button; «¡Combo ×n!»
-## centred over the mouth of the jar from a combo of 2, for as long as the combo can go on
-## (Scoring.COMBO_WINDOW); and the notices («¡Nueva criatura: …!»: the core's Notice, one at a
-## time, a new one replaces the old) under the top row. Game calls it; it reports pause_requested. Everything but the buttons
-## lets the finger through to the jar.
+## Node, a piece of Game: the round's HUD on layer-hud. Top left the points (SCORE) and the
+## record; top right «Siguiente» with the creature after the waiting one (a CreatureView) and
+## the pause button; «¡Combo ×n!» centred over the mouth of the jar from a combo of 2, for as
+## long as the combo can go on (Scoring.COMBO_WINDOW). Game calls it; it reports pause_requested.
+## Everything but the buttons lets the finger through to the jar.
 
 signal pause_requested
 
@@ -12,7 +11,6 @@ const NEXT_TEXT := "Siguiente"
 const RECORD_TEXT := "Récord: %d"
 const COMBO_TEXT := "¡Combo ×%d!"
 const FADE := 0.2
-const NOTICE_TIME := 4.0
 const COMBO_POP := 1.2
 const COMBO_POP_TIME := 0.15
 
@@ -21,10 +19,7 @@ var _record: Label
 var _next: CreatureView
 var _row: HBoxContainer
 var _combo: Label
-var _notice: PanelContainer
-var _notice_text: Label
 var _combo_tween: Tween
-var _notice_tween: Tween
 
 
 func _init() -> void:
@@ -65,18 +60,6 @@ func _init() -> void:
 	_combo.offset_bottom = UiTokens.HUD_COMBO_TOP
 	_combo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_combo.hide()
-	_notice = PanelContainer.new()
-	_notice.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(_notice)
-	_notice.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_notice.offset_left = 0.0
-	_notice.offset_right = 0.0
-	_notice.offset_top = UiTokens.HUD_NOTICE_TOP
-	_notice.offset_bottom = UiTokens.HUD_NOTICE_TOP
-	_notice.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	_notice_text = Label.new()
-	_notice.add_child(_notice_text)
-	_notice.hide()
 
 
 func set_score(score: int) -> void:
@@ -109,20 +92,6 @@ func show_combo(combo: int) -> void:
 	_combo_tween.tween_callback(_combo.hide)
 
 
-## A notice under the top row: fades in, stays NOTICE_TIME, fades out.
-func show_notice(text: String) -> void:
-	_notice_text.text = text
-	_notice.show()
-	_notice.modulate.a = 0.0
-	if _notice_tween:
-		_notice_tween.kill()
-	_notice_tween = create_tween()
-	_notice_tween.tween_property(_notice, "modulate:a", 1.0, FADE)
-	_notice_tween.tween_interval(NOTICE_TIME)
-	_notice_tween.tween_property(_notice, "modulate:a", 0.0, FADE)
-	_notice_tween.tween_callback(_notice.hide)
-
-
 func _label(parent: Control, variation: StringName, text: String) -> Label:
 	var label := Label.new()
 	label.text = text
@@ -131,11 +100,8 @@ func _label(parent: Control, variation: StringName, text: String) -> Label:
 	return label
 
 
-## Drops the combo and the notice of the round before (a new round starts clean).
+## Drops the combo of the round before (a new round starts clean).
 func clear() -> void:
 	if _combo_tween:
 		_combo_tween.kill()
-	if _notice_tween:
-		_notice_tween.kill()
 	_combo.hide()
-	_notice.hide()

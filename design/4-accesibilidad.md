@@ -1,6 +1,6 @@
 # Accesibilidad en ¡Plop!
 
-Las reglas generales (4,5:1 en el tema normal, 7:1 en el de alto contraste, nunca solo color) están en la [accesibilidad del núcleo](../../addons/design_system/docs/4-accesibilidad.md). Aquí, los pares comprobados con los valores del juego.
+Las reglas generales (4,5:1 en el tema normal, 7:1 en el de alto contraste, nunca solo color) están en la [accesibilidad del núcleo](../addons/design_system/docs/4-accesibilidad.md). Aquí, los pares comprobados con los valores del juego.
 
 ## Contraste
 
@@ -33,4 +33,3 @@ La opción de Opciones: ventanas opacas (`purple-950`), texto secundario y desac
 - El récord nuevo se dice con palabras: «¡Nuevo récord!».
 - Una criatura sin descubrir es una silueta con «???».
 - En un selector, la opción activa va rellena y dice «Sí» o «No».
-- El aviso de una criatura nueva lo dice entero: «¡Nueva criatura: …!».

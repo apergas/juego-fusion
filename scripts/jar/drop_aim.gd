@@ -10,7 +10,7 @@ class_name DropAim extends Node3D
 signal released(x: float)
 
 const KEY_SPEED := 6.0
-const LINE_WIDTH := 0.04
+const LINE_WIDTH := 0.06
 
 var x := 0.0
 var enabled := true
@@ -45,6 +45,11 @@ func hide_waiting() -> void:
 		_waiting.queue_free()
 		_waiting = null
 	_line.visible = false
+
+
+## The waiting creature (and the line) at value, kept inside the jar: a kept round's aim.
+func set_x(value: float) -> void:
+	_move_to(value)
 
 
 func step(delta: float) -> void:

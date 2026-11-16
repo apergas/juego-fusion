@@ -2,14 +2,15 @@ class_name RunFlags extends RefCounted
 ## The flags given after `--` on the command line (`godot --path . -- --autoplay ...`), read
 ## once from OS.get_cmdline_user_args() and kept in a static var. The only script of the game
 ## that reads the command line (the offline tools of scripts/tools/ read their own). The web
-## build gets none, so every flag is off there. The autoplay sub-flags (games, save, menu) only
-## count with --autoplay. Copied from Villaclaro's scripts/game/run_flags.gd, with this game's
-## flags.
+## build gets none, so every flag is off there. The autoplay sub-flags (games, save, menu, resume)
+## only count with --autoplay. Copied from Villaclaro's scripts/game/run_flags.gd, with this
+## game's flags.
 
 const AUTOPLAY := "--autoplay"
 const AUTOPLAY_GAMES := "--autoplay-games="
 const AUTOPLAY_SAVE := "--autoplay-save"
 const AUTOPLAY_MENU := "--autoplay-menu"
+const AUTOPLAY_RESUME := "--autoplay-resume"
 const SEED := "--seed="
 const TOUCH := "--touch"
 
@@ -37,6 +38,12 @@ static func autoplay_save() -> bool:
 ## --autoplay-menu (with --autoplay): tours the title, the bestiary, the options and the pause.
 static func autoplay_menu() -> bool:
 	return autoplay() and _has(AUTOPLAY_MENU)
+
+
+## --autoplay-resume (with --autoplay): GameAutoplay.RESUME_AT seconds into the first round, the
+## round is kept as if the player left, read back from the file and played on from there.
+static func autoplay_resume() -> bool:
+	return autoplay() and _has(AUTOPLAY_RESUME)
 
 
 ## --seed=<n>: the seed of the first round's Spawner (each next round adds 1); -1 when absent.

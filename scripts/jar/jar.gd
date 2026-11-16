@@ -1,9 +1,11 @@
 class_name Jar extends Node3D
-## Node: the jar of one round and its creatures as physics bodies (CreatureBody). It only
-## reports what happens (released: the finger let the waiting creature go; merge_found: two equal creatures touch) and plays back what
-## Game tells it (drop, show_waiting, merge, vanish). Built by JarBuilder, with its backdrop and camera; its
-## pieces are DropAim, MergeWatcher, DangerLine and FusionFx. Game creates a new one for every round and calls step() every physics
-## frame: no piece runs its own _physics_process.
+## Node: the jar of one round and its creatures as physics bodies (CreatureBody). It only reports
+## what happens (released: the finger let the waiting creature go; merge_found: two equal
+## creatures touch) and plays back what Game tells it (drop, show_waiting, merge, vanish, and
+## rebuild() for a kept round; snapshot() gives its creatures to RoundSnapshot). Built by
+## JarBuilder, with its backdrop and camera; its pieces are DropAim, MergeWatcher, DangerLine and
+## FusionFx. Game creates a new one for every round and calls step() every physics frame: no
+## piece runs its own _physics_process.
 
 signal released(x: float)
 signal merge_found(a: CreatureBody, b: CreatureBody)
@@ -107,6 +109,42 @@ func freeze_all() -> void:
 	_aim.hide_waiting()
 	for body in _bodies:
 		body.freeze = true
+
+
+## Each creature as RoundSnapshot.creature(); the ones taken by a merge are about to go and are
+## left out.
+func snapshot() -> Array[Dictionary]:
+	var list: Array[Dictionary] = []
+	for body in _bodies:
+		if body.merged:
+			continue
+		list.append(RoundSnapshot.creature(body.data.level,
+			Vector2(body.position.x, body.position.y), body.rotation.z,
+			Vector2(body.linear_velocity.x, body.linear_velocity.y), body.angular_velocity.z,
+			body.age))
+	return list
+
+
+## The creatures of a kept round (RoundSnapshot.creatures_of()) back where they were, turned and
+## moving as they were.
+func rebuild(creatures: Array[Dictionary]) -> void:
+	for item in creatures:
+		var at: Vector2 = item.at
+		var velocity: Vector2 = item.velocity
+		var body := _spawn(Chain.data(item.level), Vector3(at.x, at.y, 0.0))
+		body.rotation.z = item.angle
+		body.linear_velocity = Vector3(velocity.x, velocity.y, 0.0)
+		body.angular_velocity = Vector3(0.0, 0.0, item.spin)
+		body.age = item.age
+
+
+## The waiting creature's x (kept with a round) and putting it back.
+func aim_x() -> float:
+	return _aim.x
+
+
+func set_aim_x(value: float) -> void:
+	_aim.set_x(value)
 
 
 func _fit() -> void:
