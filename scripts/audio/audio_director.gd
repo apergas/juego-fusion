@@ -3,8 +3,8 @@ class_name AudioDirector extends Node
 ## trimmed to the music and the effects (no ambient). Not an autoload: TitleScreen creates the only
 ## one and passes it on (Game, the windows). Three music players cross-fade over CROSSFADE seconds
 ## (MusicLibrary's tunes: the title's and the jar's; the third one is free when a tune is
-## switched mid-fade, so the one still fading out is never cut); SFX_PLAYERS players take turns for the
-## effects. With --autoplay everything plays the same but muted, and each tune started is printed
+## switched mid-fade, so the one still fading out is never cut); SFX_PLAYERS players take turns
+## for the effects. With --autoplay everything plays the same but muted, and each tune started is printed
 ## with how long it took to render (`Música: jar (120 ms)`); on a headless run or while recording
 ## frames (--write-movie) the streams are built and set but never started: those audio drivers
 ## keep the playbacks alive at exit and Godot reports them as leaked. Keeps running while the tree
