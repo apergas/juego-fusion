@@ -5,10 +5,11 @@ extends GutTest
 const Fixtures := preload("res://tests/fixtures.gd")
 
 ## What a round still going can't have: [key, value]. Each is refused.
-const BROKEN := [
+var broken := [
 	["score", -1.0], ["score", 2.5], ["score", "mucho"], ["combo", -1.0], ["max_level", 9.0],
-	["current", 0.0], ["current", 5.0], ["next", 9.0], ["can_drop", 1.0], ["wait_left", -0.1],
-	["wait_left", 0.6], ["since_merge", -1.0], ["since_merge", 1.5], ["danger_time", 3.0],
+	["current", 0.0], ["current", Spawner.WEIGHTS.size() + 1.0], ["next", 9.0], ["can_drop", 1.0],
+	["wait_left", -0.1], ["wait_left", Spawner.DROP_WAIT + 0.1], ["since_merge", -1.0],
+	["since_merge", Scoring.COMBO_WINDOW + 0.5], ["danger_time", Danger.LOSE_TIME],
 	["danger_time", -0.5], ["elapsed", -1.0], ["aim_x", "centro"], ["rng_state", 12.0],
 	["rng_state", "mucho"], ["creatures", {}], ["creatures", "lobo"]]
 ## What a creature in the jar can't have: [key, value]. Each is refused.
@@ -27,6 +28,15 @@ func test_a_round_goes_through_json_and_back() -> void:
 		assert_almost_eq(float(state.get(key)), float(original.get(key)), 0.0001, key)
 	assert_false(state.over)
 	assert_almost_eq(RoundSnapshot.aim_x_of(data), 0.75, 0.0001)
+
+
+func test_a_round_that_can_drop_goes_through_json_and_back() -> void:
+	var original := Fixtures.round_state()
+	original.can_drop = true
+	var none: Array[Dictionary] = []
+	var data: Dictionary = JSON.parse_string(JSON.stringify(RoundSnapshot.from(original, none, 0.0)))
+	assert_true(RoundSnapshot.is_valid(data))
+	assert_true(RoundSnapshot.state_of(data).can_drop)
 
 
 func test_the_creatures_come_back_as_they_were() -> void:
@@ -65,7 +75,7 @@ func test_the_combo_clock_is_never_infinite_and_an_old_combo_starts_again() -> v
 
 
 func test_what_a_round_still_going_cannot_have_is_refused() -> void:
-	for change: Array in BROKEN:
+	for change: Array in broken:
 		var data := Fixtures.kept_round()
 		data[change[0]] = change[1]
 		assert_false(RoundSnapshot.is_valid(data), "%s = %s" % [change[0], change[1]])

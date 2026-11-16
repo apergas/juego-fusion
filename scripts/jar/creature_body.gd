@@ -3,8 +3,8 @@ class_name CreatureBody extends RigidBody3D
 ## (CreatureLooks). Locked on the Z axis (depth) and turning only around it, so it rolls without
 ## leaving the plane; mass, friction, bounce and damping are JarSpec's. It reports its contacts
 ## (contact monitor) for MergeWatcher. Its figure never rolls with it: _process keeps it upright,
-## so the faces and the wings always read the same way up. age counts the seconds it has been in the jar
-## (Jar.step()); merged marks it taken by a merge (it is about to go).
+## so the faces and the wings always read the same way up. age counts the seconds it has been in
+## the jar (Jar.step()); merged marks it taken by a merge (it is about to go).
 
 const MAX_CONTACTS := 8
 
