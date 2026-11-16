@@ -40,6 +40,15 @@ func on_dropped(id: String, x: float) -> void:
 	print("Suelta: %s en x=%.1f" % [id, x])
 
 
+## id is the creature made, "" for two of the last level (they vanish).
+func on_merged(id: String, combo: int) -> void:
+	if id == "":
+		var top: String = Chain.IDS[Chain.MAX_LEVEL - 1]
+		print("Fusión: %s + %s (combo %d)" % [top, top, combo])
+		return
+	print("Fusión: %s (combo %d)" % [id, combo])
+
+
 ## Over the highest settled creature of data's level; with none, where the pile is lowest
 ## (the middle wins a tie).
 func _choose_x(data: CreatureData, bodies: Array[CreatureBody]) -> float:

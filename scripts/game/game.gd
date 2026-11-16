@@ -2,9 +2,9 @@ class_name Game extends Node
 ## One play session, created by TitleScreen (setup() before add_child); run on its own
 ## (res://scenes/game/game.tscn) it loads the save and makes its own AudioDirector. A
 ## coordinator: it owns the round's GameState, the current Jar (a new one each round) and the
-## game's clock (the round's time and the wait after a drop, on the physics frame). The Jar only
-## reports (released); the rules (Chain, Spawner) decide; Game plays it back through the Jar.
-## Its piece GameAutoplay plays by itself, only with --autoplay. Esc goes back to the title
+## game's clock (the round's time, the wait after a drop and the combo's clock, on the physics
+## frame). The Jar only reports (released, merge_found); the rules (Chain, Spawner, Scoring) decide;
+## Game plays it back through the Jar. Its piece GameAutoplay plays by itself, only with --autoplay. Esc goes back to the title
 ## (quit_to_title).
 
 signal quit_to_title
@@ -76,6 +76,7 @@ func drop_at(x: float) -> void:
 ## One physics frame of the round: its clocks, then the jar.
 func _tick(delta: float) -> void:
 	state.elapsed += delta
+	state.since_merge += delta
 	if not state.can_drop:
 		state.wait_left -= delta
 		if state.wait_left <= 0.0:
@@ -94,6 +95,7 @@ func _start_round() -> void:
 	Spawner.start(state)
 	_jar = Jar.new()
 	_jar.released.connect(drop_at)
+	_jar.merge_found.connect(_on_merge_found)
 	add_child(_jar)
 	_present()
 
@@ -103,6 +105,29 @@ func _present() -> void:
 	state.can_drop = true
 	state.wait_left = 0.0
 	_jar.show_waiting(Chain.data(state.current))
+
+
+## Two equal creatures touch (the Jar's merge_found): the combo and the points (Scoring), then the
+## creature they make (Chain), or nothing for two of the last level.
+func _on_merge_found(a: CreatureBody, b: CreatureBody) -> void:
+	if state.over:
+		return
+	var level := a.data.level
+	state.combo = Scoring.next_combo(state.combo, state.since_merge)
+	state.since_merge = 0.0
+	var points := Scoring.points(Chain.merge_points(level), state.combo)
+	state.score += points
+	var made := Chain.next_level(level)
+	if made == 0:
+		_jar.vanish(a, b)
+		_audio.play_sfx(SfxLibrary.PRIZE)
+	else:
+		var data := Chain.data(made)
+		_jar.merge(a, b, data)
+		_audio.play_sfx(SfxLibrary.plop_id(made))
+		_note_creature(data)
+	if _autopilot:
+		_autopilot.on_merged(Chain.IDS[made - 1] if made > 0 else "", state.combo)
 
 
 ## A creature has come into the jar (dropped or made by a merge).

@@ -37,3 +37,11 @@ func _init(creature: CreatureData) -> void:
 ## The height of its top: what Danger compares with the line.
 func top() -> float:
 	return position.y + data.radius
+
+
+## A creature just made by a merge grows into its place: its collider from JarSpec.GROW_FROM
+## times its radius to the whole of it in JarSpec.GROW_TIME, so it pushes its neighbours aside
+## instead of kicking them.
+func grow() -> void:
+	_sphere.radius = data.radius * JarSpec.GROW_FROM
+	create_tween().tween_property(_sphere, "radius", data.radius, JarSpec.GROW_TIME)
