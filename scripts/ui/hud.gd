@@ -31,6 +31,8 @@ var _combo_tween: Tween
 var _break: PowerButton
 var _swap: PowerButton
 var _hint: Label
+var _can_swap := false
+var _picking := false
 
 
 func _init() -> void:
@@ -133,11 +135,15 @@ func set_power_ups(breaks: int, swaps: int, can_break: bool, can_swap: bool) -> 
 	_break.text = BREAK_TEXT % breaks
 	_break.disabled = not can_break
 	_swap.text = SWAP_TEXT % swaps
-	_swap.disabled = not can_swap
+	_can_swap = can_swap
+	_swap.disabled = _picking or not can_swap
 
 
-## Romper is choosing (on) or not: its button pressed and the hint shown.
+## Romper is choosing (on) or not: its button pressed, the hint shown and Cambiar off (it does
+## nothing meanwhile).
 func set_picking(on: bool) -> void:
+	_picking = on
+	_swap.disabled = on or not _can_swap
 	_break.set_pressed_no_signal(on)
 	_hint.visible = on
 
