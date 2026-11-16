@@ -4,11 +4,9 @@ Ideas y pasos pendientes del juego. Cuando una idea pasa a un spec y al [documen
 
 La idea del juego, su arquitectura y la preparación ya están en el [spec de la 0.1.0](specs/2026-11-16-version-0-1-0-design.md), en el documento maestro y en [CLAUDE.md](../CLAUDE.md).
 
-## 2026-11-16 · Lo que queda de la preparación (necesita GitHub)
+## 2026-11-16 · Lo que queda de la preparación
 
-- Crear el repo del juego en GitHub, añadirlo como remoto y subir `main` y `develop`. Después, en Settings → Pages, poner como Source «GitHub Actions».
-- Crear el repo del núcleo (`godot-design-system`), que ya existe en local en `Documents/godot-design-system` con su historial y la etiqueta `v1.0.0`. Hacerlo público, para que Actions lo pueda bajar sin token, y subir `main` y la etiqueta.
-- En este juego: `git submodule set-url addons/design_system <url del repo del núcleo>` y commit. Hasta entonces el submódulo apunta a la carpeta local y la publicación en Pages no funciona.
+- En GitHub, en Settings → Pages del repo `apergas/juego-fusion`, poner como Source «GitHub Actions» antes de la primera publicación.
 
 ## 2026-11-16 · Villaclaro con el núcleo como submódulo
 
