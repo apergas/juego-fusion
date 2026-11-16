@@ -5,7 +5,7 @@ Lo que se ha hecho y lo que queda por hacer en *¡Plop!*. Una fila por versión 
 | Versión / ID | Qué | Estado |
 |---|---|---|
 | 0.0.0 | La preparación: proyecto vacío en vertical, `CLAUDE.md`, el núcleo del design system como submódulo y la capa del juego, el preset web y la publicación en Pages | hecho |
-| 0.1.0 · M-01 | El tarro: medidas, paredes, criaturas con física en un plano y la cámara ([spec](specs/2026-11-16-version-0-1-0-design.md) · [plan](plans/2026-11-16-version-0-1-0.md)) | hecho |
+| 0.1.0 · M-01 | El tarro: medidas, paredes, criaturas con física en un plano y la cámara ([spec](legacy/specs/2026-11-16-version-0-1-0-design.md) · [plan](legacy/plans/2026-11-16-version-0-1-0.md)) | hecho |
 | 0.1.0 · M-02 | Soltar con el dedo (y ratón o teclas), la espera tras soltar y «Siguiente» | hecho |
 | 0.1.0 · M-03 | Fusionar dos iguales, con «¡plop!», vibración, partículas y puntos | hecho |
 | 0.1.0 · M-04 | Puntos, combos y récord | hecho |
