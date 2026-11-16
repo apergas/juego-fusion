@@ -2,8 +2,9 @@ class_name CreatureBody extends RigidBody3D
 ## Node: one creature in the jar, a RigidBody3D with a sphere of its radius and its figure
 ## (CreatureLooks). Locked on the Z axis (depth) and turning only around it, so it rolls without
 ## leaving the plane; mass, friction, bounce and damping are JarSpec's. It reports its contacts
-## (contact monitor) for MergeWatcher. age counts the seconds it has been in the jar
-## (Jar.step()); merged marks it taken by a merge (it is about to go).
+## (contact monitor) for MergeWatcher. Its figure never rolls with it: _process keeps it upright,
+## so the faces and the wings always read the same way up. age counts the seconds it has been in
+## the jar (Jar.step()); merged marks it taken by a merge (it is about to go).
 
 const MAX_CONTACTS := 8
 
@@ -32,6 +33,10 @@ func _init(creature: CreatureData) -> void:
 	add_child(shape)
 	figure = CreatureLooks.build(data)
 	add_child(figure)
+
+
+func _process(_delta: float) -> void:
+	figure.global_rotation = Vector3.ZERO
 
 
 ## The height of its top: what Danger compares with the line.

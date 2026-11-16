@@ -6,10 +6,10 @@ class_name CreatureLooks extends RefCounted
 ## - gota: a drop, its tip up;
 ## - slime: a squashed ball with a mouth; slime_mejillas: the same with pink cheeks;
 ## - seta: a cream ball (accent) under a red cap (color) with cream dots;
-## - murcielago: two small wings and two pointed ears;
+## - murcielago: two big dark wings rising in a V from the shoulders;
 ## - lobo: two ears and a light snout with a dark nose;
 ## - golem: a rougher stone ball with moss on top;
-## - dragon: two horns and two small wings.
+## - dragon: two small horns between two big darker wings rising in a V from the shoulders.
 ## Sizes are fractions of the radius, so a figure reads the same at any size. Seen head on, from
 ## far and on a small screen. silhouette paints every part in creature-silhouette, unlit (the
 ## bestiary's undiscovered card).
@@ -21,6 +21,9 @@ const RINGS := 6
 const EYE_COLOR := Color("#1a1020")
 const SHINE_COLOR := Color.WHITE
 const ROUGHNESS := 0.85
+## A wing's outline, from the shoulder round to its tip and down its scalloped edge.
+const WING_EDGE: Array[Vector2] = [Vector2(0.0, 0.95), Vector2(0.9, 1.85), Vector2(0.9, 1.4),
+		Vector2(0.75, 1.5), Vector2(0.72, 1.2), Vector2(0.52, 1.3), Vector2(0.4, 1.0)]
 
 static var _materials := {}
 
@@ -29,6 +32,7 @@ static func build(data: CreatureData, silhouette := false) -> Node3D:
 	var root := Node3D.new()
 	var r := data.radius
 	var main := _paint(data.color, silhouette)
+	var main_color := data.color
 	var second := _paint(data.accent, silhouette)
 	var eye_y := 0.12
 	match data.look:
@@ -55,8 +59,7 @@ static func build(data: CreatureData, silhouette := false) -> Node3D:
 					Vector3(1.0, 0.8, 0.5))
 		"murcielago":
 			_add(root, LowPoly.blob(_ball(r), SEGMENTS), main)
-			_wings(root, r, 0.34, 1.0, 0.5, 0.62, second)
-			_ears(root, r, 0.17, 0.55, 0.28, 6.0, main)
+			_wings(root, r, _paint(main_color.darkened(0.2), silhouette))
 		"lobo":
 			eye_y = 0.22
 			_add(root, LowPoly.blob(_ball(r), SEGMENTS), main)
@@ -72,8 +75,8 @@ static func build(data: CreatureData, silhouette := false) -> Node3D:
 				Vector3(0.0, 0.62 * r, 0.0))
 		"dragon":
 			_add(root, LowPoly.blob(_ball(r), SEGMENTS), main)
-			_ears(root, r, 0.16, 0.6, 0.28, 8.0, second)
-			_wings(root, r, 0.3, 0.85, 0.5, 0.55, second)
+			_ears(root, r, 0.18, 0.95, 0.17, 6.0, second)
+			_wings(root, r, _paint(main_color.darkened(0.25), silhouette))
 		_:
 			_add(root, LowPoly.blob(_ball(r), SEGMENTS), main)
 	_eyes(root, r, eye_y, silhouette)
@@ -117,14 +120,21 @@ static func _ears(root: Node3D, r: float, radius: float, height: float, x: float
 			Vector3(side * x * r, 0.92 * r, 0.0), Vector3(0.0, 0.0, side * lean))
 
 
-## Two flat cones for wings, folded up and back behind the body: none reaches past the radius
-## sideways, so nothing pokes through the jar's wall.
-static func _wings(root: Node3D, r: float, radius: float, length: float, x: float,
-		y: float, material: Material) -> void:
+## Two flat scalloped membranes for wings, behind the head: each rises from the upper shoulder to a
+## tip up and out, with three scallops along its lower edge. WING_EDGE is the right wing's outline
+## in radii (x out, y up), no point past 0.9 sideways (CreatureBody keeps the figure upright), so
+## nothing pokes through the jar's wall.
+static func _wings(root: Node3D, r: float, material: Material) -> void:
 	for side: float in [-1.0, 1.0]:
-		_add(root, LowPoly.cone(radius * r, length * r), material,
-			Vector3(side * x * r, y * r, -0.1 * r), Vector3(0.0, 0.0, -side * 75.0),
-			Vector3(1.0, 1.0, 0.35))
+		var st := SurfaceTool.new()
+		st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		for i in range(1, WING_EDGE.size() - 1):
+			for corner: Vector2 in [WING_EDGE[0], WING_EDGE[i], WING_EDGE[i + 1]]:
+				st.add_vertex(Vector3(side * corner.x * r, corner.y * r, -0.15 * r))
+			for corner: Vector2 in [WING_EDGE[0], WING_EDGE[i + 1], WING_EDGE[i]]:
+				st.add_vertex(Vector3(side * corner.x * r, corner.y * r, -0.15 * r))
+		st.generate_normals()
+		_add(root, st.commit(), material)
 
 
 ## Two eyes on the front of a ball of radius r, at height y (times r), each with its shine.

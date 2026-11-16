@@ -1,0 +1,10 @@
+# A weekly pull request to develop when the design system core (the git submodule
+# addons/design_system, repository apergas/godot-design-system) has a newer commit or tag.
+# tests.yml runs on it; it is merged by hand after looking at it, never automatically.
+version: 2
+updates:
+  - package-ecosystem: "gitsubmodule"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "develop"

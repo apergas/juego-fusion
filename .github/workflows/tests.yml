@@ -1,0 +1,52 @@
+# Runs the unit tests (GUT, tests/) and the design system's two checks on every push to develop,
+# on every pull request to develop (Dependabot's for the core's submodule among them) and by hand
+# from the Actions tab. A failing check turns the job red; nothing is published (Pages runs them
+# again before deploying).
+name: Tests
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: 4.7.2
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Install Godot
+        run: |
+          base="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable"
+          curl -fsSL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          rm godot.zip
+
+      - name: Import, check the design system, test and play
+        run: |
+          ./godot --headless --path . --import
+          ./godot --headless --path . --script res://addons/design_system/tools/gen_ui_tokens.gd -- --check
+          ./godot --headless --path . --script res://addons/design_system/tools/check_ui_values.gd
+          ./godot --headless --path . --script res://addons/gut/gut_cmdln.gd
+          export XDG_DATA_HOME="$RUNNER_TEMP/data"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 900 ./godot --headless --path . --fixed-fps 10 --quit-after 30000 -- --autoplay --autoplay-games=2 --seed=1 > autoplay.txt 2>&1 || { cat autoplay.txt; exit 1; }
+          grep -E "^(Partida|Media)" autoplay.txt
+          test "$(grep -c '^Partida:' autoplay.txt)" -eq 2 || { cat autoplay.txt; exit 1; }
+          if grep -E "ERROR|WARNING" autoplay.txt | grep -v "Jolt Physics job system exceeded the maximum number of jobs"; then exit 1; fi

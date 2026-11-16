@@ -3,7 +3,8 @@ class_name GameState extends RefCounted
 ## Spawner's, seeded (--seed=<n>) or at random. current is the level of the creature waiting at
 ## the top, next the one after it («Siguiente»); can_drop is true while one waits, and wait_left
 ## counts Spawner.DROP_WAIT after a drop. since_merge is the combo's clock (Scoring),
-## danger_time Danger's count. Game advances every clock on the physics frame.
+## danger_time Danger's count. breaks and swaps are the helps' charges (PowerUps). Game advances
+## every clock on the physics frame.
 
 var rng := RandomNumberGenerator.new()
 var current := 1
@@ -16,6 +17,9 @@ var since_merge := INF
 var danger_time := 0.0
 ## The biggest level that has been in the jar this round.
 var max_level := 0
+## Romper's and Cambiar's charges (PowerUps.start() gives a round its first ones).
+var breaks := 0
+var swaps := 0
 ## Seconds of this round.
 var elapsed := 0.0
 var over := false

@@ -10,7 +10,7 @@ class_name DropAim extends Node3D
 signal released(x: float)
 
 const KEY_SPEED := 6.0
-const LINE_WIDTH := 0.04
+const LINE_WIDTH := 0.06
 
 var x := 0.0
 var enabled := true
@@ -47,6 +47,11 @@ func hide_waiting() -> void:
 	_line.visible = false
 
 
+## The waiting creature (and the line) at value, kept inside the jar: a kept round's aim.
+func set_x(value: float) -> void:
+	_move_to(value)
+
+
 func step(delta: float) -> void:
 	if not enabled:
 		return
@@ -65,10 +70,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	var button := event as InputEventMouseButton
 	if button and button.button_index == MOUSE_BUTTON_LEFT:
 		get_viewport().set_input_as_handled()
-		_move_to(_world_x(button.position))
 		if button.pressed:
+			_move_to(_world_x(button.position))
 			_held = true
 		elif _held:
+			_move_to(_world_x(button.position))
 			_held = false
 			released.emit(x)
 		return
