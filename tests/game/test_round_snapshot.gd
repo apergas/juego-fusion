@@ -115,6 +115,16 @@ func test_a_round_kept_before_the_helps_gets_one_of_each() -> void:
 	assert_eq(state.swaps, PowerUps.START)
 
 
+func test_a_round_with_every_charge_of_one_help_and_none_of_the_other_is_accepted() -> void:
+	var data := Fixtures.kept_round()
+	data["breaks"] = PowerUps.MAX
+	data["swaps"] = 0
+	assert_true(RoundSnapshot.is_valid(data))
+	var state := RoundSnapshot.state_of(data)
+	assert_eq(state.breaks, PowerUps.MAX)
+	assert_eq(state.swaps, 0)
+
+
 func test_more_creatures_than_fit_are_refused() -> void:
 	var data := Fixtures.kept_round()
 	var many := []

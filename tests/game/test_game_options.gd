@@ -18,7 +18,8 @@ func test_what_is_missing_keeps_its_default() -> void:
 
 
 func test_values_of_the_wrong_type_keep_their_default() -> void:
-	var options := GameOptions.from_dict({"music": [1], "sfx": "alto", "vibration": 1, "high_contrast": "si"})
+	var options := GameOptions.from_dict(
+			{"music": [1], "sfx": "alto", "vibration": 1, "high_contrast": "si"})
 	assert_eq_deep(options.to_dict(), GameOptions.new().to_dict())
 
 

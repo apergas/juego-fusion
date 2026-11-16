@@ -7,7 +7,8 @@
 .mcp.json
 
 # Exports
-/build/
+/build/*
+!/build/.gdignore
 
 # Temporary phone-shaped viewport for frames (see the fusion-autoplay skill)
 /override.cfg

@@ -121,3 +121,29 @@ func test_hit_finds_the_creature_under_the_finger() -> void:
 	var none_c: Array[Vector2] = []
 	var none_r: Array[float] = []
 	assert_eq(PowerUps.hit(Vector2.ZERO, none_c, none_r), -1)
+
+
+func test_one_big_step_earns_every_cambiar_it_crosses() -> void:
+	var state := _round()
+	state.swaps = 0
+	state.score = PowerUps.SWAP_EVERY * 2
+	assert_eq(PowerUps.earn(state, PowerUps.SWAP_EVERY - 1, 0).swaps, 2)
+	assert_eq(state.swaps, 2)
+
+
+func test_the_gain_returned_is_the_real_one_after_the_cap() -> void:
+	var state := _round()
+	state.score = PowerUps.SWAP_EVERY * 2
+	state.swaps = PowerUps.MAX
+	assert_eq(PowerUps.earn(state, 0, 0).swaps, 0, "already at the cap")
+	assert_eq(state.swaps, PowerUps.MAX)
+	state.swaps = PowerUps.MAX - 1
+	assert_eq(PowerUps.earn(state, 0, 0).swaps, 1, "two earned, room for one")
+	assert_eq(state.swaps, PowerUps.MAX)
+
+
+func test_romper_counts_only_levels_from_its_own_threshold() -> void:
+	var state := _round()
+	state.breaks = 0
+	state.max_level = PowerUps.BREAK_FROM_LEVEL + 1
+	assert_eq(PowerUps.earn(state, 0, PowerUps.BREAK_FROM_LEVEL - 3).breaks, 2)
