@@ -8,10 +8,12 @@ class_name Game extends Node
 ## (keep_round()). The Jar only reports (released, merge_found); the rules (Chain, Spawner,
 ## Scoring, Danger, Bestiary, RoundSnapshot, PowerUps) decide; Game plays it back through the Jar,
 ## the Hud and the windows. Its pieces: the Hud, the PauseWindow, the OptionsWindow over it and the
-## EndWindow (created when needed) and GameAutoplay (only with --autoplay). Esc, the HUD's button
-## and losing the focus (FOCUS_LOST, never on autoplay) open the pause; a kept round comes back
-## in the pause (resume_round()). The HUD's Cambiar swaps the waiting creature with «Siguiente»
-## (swap_waiting()). Salir and Salir al título go back to the title (quit_to_title).
+## EndWindow (created when needed), the BreakPicker and GameAutoplay (only with --autoplay). Esc,
+## the HUD's button and losing the focus (FOCUS_LOST, never on autoplay) open the pause; a kept
+## round comes back in the pause (resume_round()). The HUD's Cambiar swaps the waiting creature
+## with «Siguiente» (swap_waiting()). Its Romper pauses the tree while its piece BreakPicker takes
+## the tap (toggle_break(), break_creature()). Salir and Salir al título go back to the title
+## (quit_to_title).
 
 signal quit_to_title
 
@@ -29,6 +31,7 @@ var _end: EndWindow
 var _pause: PauseWindow
 var _options_window: OptionsWindow
 var _autopilot: GameAutoplay
+var _picker: BreakPicker
 ## How many rounds this session has started: the seed of each is --seed=<n> plus it.
 var _round := 0
 ## The session starts from the profile's kept round (the title's Seguir).
@@ -57,6 +60,11 @@ func _ready() -> void:
 	_hud = Hud.new()
 	_hud.pause_requested.connect(open_pause)
 	_hud.swap_requested.connect(swap_waiting)
+	_hud.break_requested.connect(toggle_break)
+	_picker = BreakPicker.new()
+	_picker.picked.connect(_on_picked)
+	_picker.cancelled.connect(_stop_picking)
+	add_child(_picker)
 	add_child(_hud)
 	if RunFlags.autoplay():
 		_autopilot = GameAutoplay.new()
@@ -125,6 +133,7 @@ func drop_at(x: float) -> void:
 func open_pause() -> void:
 	if state == null or state.over or _pause:
 		return
+	_stop_picking()
 	keep_round()
 	get_tree().paused = true
 	_pause = PauseWindow.new()
@@ -181,7 +190,7 @@ func resume_round(data: Dictionary) -> void:
 ## swapped one); false (nothing changed) if it can't be used now. The HUD's button and the
 ## autoplay call it.
 func swap_waiting() -> bool:
-	if not PowerUps.swap(state):
+	if _picker.active or not PowerUps.swap(state):
 		return false
 	if state.can_drop:
 		_jar.show_waiting(Chain.data(state.current))
@@ -189,6 +198,48 @@ func swap_waiting() -> bool:
 	_audio.play_sfx(SfxLibrary.SWAP)
 	_show_power_ups()
 	return true
+
+
+## Romper's button: starts choosing (the tree pauses, the hint shows) or, while choosing, stops
+## without spending anything.
+func toggle_break() -> void:
+	if _picker.active:
+		_stop_picking()
+		return
+	if _pause or not PowerUps.can_break(state, _jar.creatures().size()):
+		_hud.set_picking(false)
+		return
+	_picker.start()
+	get_tree().paused = true
+	_hud.set_picking(true)
+
+
+## Romper on body: it goes in a burst of its colour, with its sound, and gives nothing (a charge
+## goes); false if it can't be used. The picker and the autoplay call it.
+func break_creature(body: CreatureBody) -> bool:
+	if body == null or body.merged or not PowerUps.use_break(state):
+		return false
+	_jar.break_creature(body)
+	_audio.play_sfx(SfxLibrary.BREAK)
+	_show_power_ups()
+	return true
+
+
+## A tap while choosing: the creature under it breaks; none there, it keeps choosing.
+func _on_picked(screen: Vector2) -> void:
+	var body := _jar.creature_at(_jar.world_point(screen))
+	if body == null:
+		return
+	_stop_picking()
+	break_creature(body)
+
+
+func _stop_picking() -> void:
+	if not _picker.active:
+		return
+	_picker.stop()
+	_hud.set_picking(false)
+	get_tree().paused = false
 
 
 ## The helps' buttons: their charges and whether they can be used now.
