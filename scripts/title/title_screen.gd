@@ -4,12 +4,13 @@ class_name TitleScreen extends Node
 ## from the save (SaveStore) at the start, and creates a Game for each
 ## session; when the Game emits quit_to_title it frees it and shows the title again. Pattern
 ## taken from Villaclaro's scripts/title/title_screen.gd. With --autoplay the Game starts at once,
-## and the run quits when it goes back to the title.
+## and the run quits when it goes back to the title. Bestiario opens a BestiaryWindow over the title. With --autoplay-menu too, the title first shows itself and the bestiary (_tour()), then starts the Game.
 
 const GAME_SCENE := preload("res://scenes/game/game.tscn")
 const TITLE_TEXT := "¡Plop!"
 const SUBTITLE_TEXT := "junta dos iguales"
 const PLAY_TEXT := "Jugar"
+const BESTIARY_TEXT := "Bestiario"
 
 var _audio: AudioDirector
 var _options: GameOptions
@@ -18,10 +19,16 @@ var _backdrop: Node3D
 var _camera: Camera3D
 var _ui: CanvasLayer
 var _buttons: VBoxContainer
+var _window: ModalWindow
 ## The spacer under the buttons: as tall as it takes to lift them over the jar's floor.
 var _bottom: Control
 var _game: Game
 var _autoplay := false
+
+#region Autoplay
+## --autoplay-menu: seconds each screen of the title's tour stays.
+const TOUR_STEP := 2.0
+#endregion
 
 
 func _ready() -> void:
@@ -34,10 +41,12 @@ func _ready() -> void:
 	add_child(_audio)
 	_audio.set_volume(_options.sfx_volume)
 	get_viewport().size_changed.connect(_fit)
-	if _autoplay:
+	if _autoplay and not RunFlags.autoplay_menu():
 		_start_game()
 		return
 	_open_title()
+	if _autoplay:
+		_tour()
 
 
 ## The backdrop, the empty jar, the camera and the menu.
@@ -107,6 +116,7 @@ func _build_menu() -> void:
 	_buttons.add_theme_constant_override(&"separation", UiTokens.SPACE_4)
 	column.add_child(_buttons)
 	_add_button(PLAY_TEXT, _start_game)
+	_add_button(BESTIARY_TEXT, _open_bestiary)
 	_bottom = Control.new()
 	_bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(_bottom)
@@ -131,9 +141,30 @@ func _add_button(text: String, action: Callable) -> Button:
 	return button
 
 
+func _open_bestiary() -> void:
+	if _window:
+		return
+	var window := BestiaryWindow.new(_profile)
+	window.closed.connect(_close_window)
+	_show_window(window)
+
+
+func _show_window(window: ModalWindow) -> void:
+	window.set_audio(_audio)
+	_window = window
+	add_child(window)
+
+
+func _close_window() -> void:
+	if _window:
+		_window.queue_free()
+		_window = null
+
+
 func _start_game() -> void:
 	if _game:
 		return
+	_close_window()
 	_close_title()
 	_game = GAME_SCENE.instantiate() as Game
 	_game.setup(_audio, _options, _profile)
@@ -151,3 +182,17 @@ func _on_quit_to_title() -> void:
 		get_tree().quit()
 		return
 	_open_title()
+
+
+#region Autoplay
+## --autoplay-menu: the title, the bestiary (and its end), then the game.
+func _tour() -> void:
+	await get_tree().create_timer(TOUR_STEP).timeout
+	_open_bestiary()
+	var bestiary := _window as BestiaryWindow
+	await get_tree().create_timer(TOUR_STEP).timeout
+	bestiary.scroll.scroll_vertical = int(bestiary.scroll.get_v_scroll_bar().max_value)
+	await get_tree().create_timer(TOUR_STEP).timeout
+	_close_window()
+	_start_game()
+#endregion

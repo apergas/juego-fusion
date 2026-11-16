@@ -3,8 +3,8 @@ class_name Game extends Node
 ## (res://scenes/game/game.tscn) it loads the save and makes its own AudioDirector. A
 ## coordinator: it owns the round's GameState, the current Jar (a new one each round), the game's
 ## clock (the round's time, the wait after a drop, the combo's clock and the danger's count, all
-## on the physics frame) and the profile's record, which it saves at the end of each round. The
-## Jar only reports (released, merge_found); the rules (Chain, Spawner, Scoring, Danger) decide;
+## on the physics frame) and the profile's record and bestiary, which it saves at the end of each round and at each discovery. The
+## Jar only reports (released, merge_found); the rules (Chain, Spawner, Scoring, Danger, Bestiary) decide;
 ## Game plays it back through the Jar, the Hud and the windows. Its pieces: the Hud, the EndWindow (created at the
 ## end of a round) and GameAutoplay (only with --autoplay). Esc goes back to the title
 ## (quit_to_title).
@@ -153,9 +153,17 @@ func _on_merge_found(a: CreatureBody, b: CreatureBody) -> void:
 		_autopilot.on_merged(Chain.IDS[made - 1] if made > 0 else "", state.combo)
 
 
-## A creature has come into the jar (dropped or made by a merge).
+## A creature has come into the jar (dropped or made by a merge): the round's biggest and, the
+## first time ever, the bestiary (a notice, its sound and a save).
 func _note_creature(data: CreatureData) -> void:
 	state.max_level = maxi(state.max_level, data.level)
+	if not Bestiary.discover(_profile, data.id):
+		return
+	_hud.show_notice(Bestiary.NEW_TEXT % data.display_name)
+	_audio.play_sfx(SfxLibrary.NEW)
+	SaveStore.save(_profile, _options)
+	if _autopilot:
+		_autopilot.on_discovered(data.id)
 
 
 ## A short vibration for a merge that makes level, if the player wants it (never on autoplay).

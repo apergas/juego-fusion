@@ -15,7 +15,7 @@ Physics is not exactly the same between runs, even with `--seed`: read the balan
 
 ## Runs
 
-- **One round, headless** (ends by itself one second after the round is lost; prints each `Suelta:`, `Fusión:` and the `Partida: N puntos, máxima <id>, M min S s` line): `APPDATA="$S/appdata" ./tools/godot.cmd --headless --path . --fixed-fps 60 --quit-after 60000 -- --autoplay`
+- **One round, headless** (ends by itself one second after the round is lost; prints each `Suelta:`, `Fusión:`, `Nueva:` and the `Partida: N puntos, máxima <id>, M min S s` line): `APPDATA="$S/appdata" ./tools/godot.cmd --headless --path . --fixed-fps 60 --quit-after 60000 -- --autoplay`
 - **A fixed seed** for the Spawner (the first round's; each next round adds 1): add `--seed=<n>`.
 - **Balance, 20 rounds** (the spec's check: a mean of 2 to 8 minutes and creature 6 in most rounds): `time APPDATA="$S/appdata" ./tools/godot.cmd --headless --path . --fixed-fps 60 --quit-after 700000 -- --autoplay --autoplay-games=20 > $S/log.txt 2>&1`, then `grep -E "^(Partida|Media)" $S/log.txt` and `grep -E "ERROR|WARNING" $S/log.txt` (nothing but, at most, Jolt's job-system warning). The last line is `Media de 20 partidas: <points> puntos, máxima <id> (<n> de 20), <time>, 6 o más en <n> de 20`.
 - **Save round trip:** add `--autoplay-save` to a one-round run; the `Guardado:` and `Cargado:` lines must be identical.
@@ -34,6 +34,7 @@ Physics is not exactly the same between runs, even with `--seed`: read the balan
   window/size/viewport_height=1480
   ```
   — the canvas a 360 × 740 phone gets with aspect expand, at twice its size — run the same command, then **delete `override.cfg`**.
+- **The menu tour** (`--autoplay-menu`): `APPDATA="$S/appdata" ./tools/godot.cmd --path . --write-movie $S/frames/f.png --fixed-fps 10 --quit-after 120 -- --autoplay --autoplay-menu`: the title (frames 0–19), the bestiary (20–39), the bestiary scrolled to its end (40–59), then the game. To see discovered cards, write `save_autoplay.json` first, e.g. `{"version": 1, "best_score": 0, "discovered": ["gota", "slime_verde"], "options": {}}`, in `$S/appdata/Godot/app_userdata/juego-fusion/`.
 
 ## Measured
 

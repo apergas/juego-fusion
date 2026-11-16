@@ -10,13 +10,17 @@ const FRAME := 3.6
 ## The camera looks a little above the centre (the Gota's tip, the ears).
 const LOOK_UP := 0.1
 
-var spin := false
+var spin := false:
+	set(value):
+		spin = value
+		set_process(spin)
 var _view: SubViewport
 var _camera: Camera3D
 var _model: Node3D
 
 
 func _init(side: int) -> void:
+	set_process(false)
 	stretch = true
 	custom_minimum_size = Vector2(side, side)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -35,7 +39,7 @@ func _init(side: int) -> void:
 
 
 func _process(delta: float) -> void:
-	if spin and _model:
+	if _model:
 		_model.rotation.y += SPIN_SPEED * delta
 
 
