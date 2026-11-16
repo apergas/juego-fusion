@@ -1,6 +1,6 @@
 # Documento maestro
 
-Lo que se ha hecho y lo que queda por hacer en *Fusión de criaturas*. Una fila por versión o por punto (`M-nn`). Estados: idea, spec, plan, en curso, hecho. Las ideas nuevas se apuntan primero en [ideas.md](ideas.md); cuando pasan a un spec y a este documento, se borran de allí.
+Lo que se ha hecho y lo que queda por hacer en *¡Plop!*. Una fila por versión o por punto (`M-nn`). Estados: idea, spec, plan, en curso, hecho. Las ideas nuevas se apuntan primero en [ideas.md](ideas.md); cuando pasan a un spec y a este documento, se borran de allí.
 
 | Versión / ID | Qué | Estado |
 |---|---|---|

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-`juego-fusion` (the game is called *Fusión de criaturas*, a provisional name; its version is `application/config/version`; `CHANGELOG.md` in Spanish): a merge puzzle for phones. Creatures drop into a jar, two equal ones that touch merge into the next of the chain, and the game is lost when the jar overflows. Made with Godot 4.7.2 (Compatibility renderer, so the same build runs on the web), in **portrait** (720 × 1280), played with one finger. The work is done from Claude Code, not the Godot editor, so scenes (`.tscn`) and scripts (`.gd`) are written directly as text files.
+`juego-fusion` (the game is called *¡Plop!*, the folder and the repository `juego-fusion`; its version is `application/config/version`; `CHANGELOG.md` in Spanish): a merge puzzle for phones. Creatures drop into a jar, two equal ones that touch merge into the next of the chain, and the game is lost when the jar overflows. Made with Godot 4.7.2 (Compatibility renderer, so the same build runs on the web), in **portrait** (720 × 1280), played with one finger. The work is done from Claude Code, not the Godot editor, so scenes (`.tscn`) and scripts (`.gd`) are written directly as text files.
 
 It is the second game after *Villaclaro* (`C:\Users\peixe\Documents\rpg-turnos`), and follows the same architecture, conventions and design system core. Villaclaro is never edited from here: what is taken from it is copied (and trimmed to what is used), or comes through the design system's submodule.
 

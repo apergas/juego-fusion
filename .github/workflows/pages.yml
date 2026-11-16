@@ -49,7 +49,7 @@ jobs:
           mkdir -p build/web
           ./godot --headless --path . --export-release "Web" build/web/index.html
           test -f build/web/index.wasm
-          jq '.short_name = "Fusión"' build/web/index.manifest.json > manifest.tmp
+          jq '.short_name = "¡Plop!"' build/web/index.manifest.json > manifest.tmp
           mv manifest.tmp build/web/index.manifest.json
           # The version a future in-game update check compares with its own
           # (WebUpdate). It is in no list of the service worker, so it always comes from the
