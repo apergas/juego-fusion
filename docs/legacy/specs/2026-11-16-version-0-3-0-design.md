@@ -1,6 +1,6 @@
 # Versión 0.3.0: ayudas y música
 
-La tercera versión de *¡Plop!* añade dos ayudas para salir de un apuro, **Romper** y **Cambiar**, y música hecha en el propio juego para el título y para el tarro. Cubre M-14 y M-15 del [documento maestro](../documento-maestro.md). Las dos venían de la fila 0.2.0 del documento maestro y de «Fuera de la 0.1.0» del [spec de la 0.1.0](../legacy/specs/2026-11-16-version-0-1-0-design.md), que solo las nombraba; se pasaron aquí al repartir la 0.2.0 ([spec](../legacy/specs/2026-11-16-version-0-2-0-design.md)). Empieza cuando la 0.2.0 está en `develop`.
+La tercera versión de *¡Plop!* añade dos ayudas para salir de un apuro, **Romper** y **Cambiar**, y música hecha en el propio juego para el título y para el tarro. Cubre M-14 y M-15 del [documento maestro](../../documento-maestro.md). Las dos venían de la fila 0.2.0 del documento maestro y de «Fuera de la 0.1.0» del [spec de la 0.1.0](2026-11-16-version-0-1-0-design.md), que solo las nombraba; se pasaron aquí al repartir la 0.2.0 ([spec](2026-11-16-version-0-2-0-design.md)). Empieza cuando la 0.2.0 está en `develop`.
 
 ## Decisiones tomadas
 

@@ -12,7 +12,7 @@ It is the second game after *Villaclaro* (`C:\Users\peixe\Documents\rpg-turnos`)
 
 ## Layout
 
-The code says what each script does; this is the map, plus what the code can't tell you. Version 0.1.0 built it ([plan](docs/legacy/plans/2026-11-16-version-0-1-0.md)); 0.2.0 made it more comfortable ([plan](docs/legacy/plans/2026-11-16-version-0-2-0.md)).
+The code says what each script does; this is the map, plus what the code can't tell you. Version 0.1.0 built it ([plan](docs/legacy/plans/2026-11-16-version-0-1-0.md)); 0.2.0 made it more comfortable ([plan](docs/legacy/plans/2026-11-16-version-0-2-0.md)); 0.3.0 added the helps and the music ([plan](docs/legacy/plans/2026-11-16-version-0-3-0.md)).
 
 - `scenes/title/` + `scripts/title/` — `TitleScreen`, the main scene: loads and applies the options, owns the only `AudioDirector` (the music and the effects), offers «Seguir» while a round is kept (and asks with a `ConfirmWindow` before «Jugar» throws it away), then creates a `Game`.
 - `scenes/game/` + `scripts/game/` — `Game` (one play session, a coordinator over its pieces) and the pure rules it owns (`GameState`, `SaveData` / `SaveStore`, `RunFlags`, `Device`, `GameOptions`, `Profile`, `Chain`, `Spawner`, `Scoring`, `Danger`, `Bestiary`, `RoundSnapshot`, `PowerUps`, `JarSpec`, `CreatureData`) and its pieces (`GameAutoplay`).

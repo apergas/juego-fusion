@@ -2,7 +2,7 @@
 
 La segunda versión de *¡Plop!* no cambia el juego: lo hace más cómodo en un móvil. Antes, la capa del design system del juego sale de `docs/` a su propia carpeta, `design/`. Las criaturas nuevas se descubren en silencio, la partida se pausa sola cuando el juego pasa a segundo plano, un tarro a medias sobrevive a cerrar el juego, y se pulen tres cosas que salieron en las revisiones de la 0.1.0. Cubre M-10 a M-13 (y la mudanza de la capa del design system) del [documento maestro](../../documento-maestro.md) y sale con M-09 (las pruebas unitarias, ya hechas). Sale de [ideas.md](../../ideas.md) («Pausar sola al pasar a segundo plano» y «Descubrir criaturas en silencio») y de la fila 0.2.0 del documento maestro («seguir un tarro a medias»).
 
-Las ayudas (Romper y Cambiar) y la música, que el documento maestro ponía también en la 0.2.0, pasan a la [0.3.0](../../specs/2026-11-16-version-0-3-0-design.md): juntas eran demasiado para una versión.
+Las ayudas (Romper y Cambiar) y la música, que el documento maestro ponía también en la 0.2.0, pasan a la [0.3.0](2026-11-16-version-0-3-0-design.md): juntas eran demasiado para una versión.
 
 ## Decisiones tomadas
 
