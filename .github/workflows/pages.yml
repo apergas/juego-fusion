@@ -1,0 +1,75 @@
+# Exports the game for the web with Godot and publishes it on GitHub Pages.
+# Runs on every push to main (releases, per gitflow) and by hand from the Actions tab.
+name: Deploy web build to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: 4.7.2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Install Godot and export templates
+        run: |
+          base="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable"
+          curl -fsSL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          curl -fsSL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          unzip -q godot.zip
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          templates="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "$templates"
+          unzip -q templates.tpz
+          mv templates/* "$templates/"
+          rm -rf godot.zip templates.tpz templates
+
+      - name: Import and export
+        run: |
+          ./godot --headless --path . --import
+          ./godot --headless --path . --script res://addons/design_system/tools/gen_ui_tokens.gd -- --check
+          ./godot --headless --path . --script res://addons/design_system/tools/check_ui_values.gd
+          mkdir -p build/web
+          ./godot --headless --path . --export-release "Web" build/web/index.html
+          test -f build/web/index.wasm
+          jq '.short_name = "¡Plop!"' build/web/index.manifest.json > manifest.tmp
+          mv manifest.tmp build/web/index.manifest.json
+          # The version a future in-game update check compares with its own
+          # (WebUpdate). It is in no list of the service worker, so it always comes from the
+          # network.
+          version=$(sed -n 's/^config\/version="\([^"]*\)"$/\1/p' project.godot)
+          test -n "$version"
+          jq -n --arg version "$version" '{version: $version}' > build/web/version.json
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

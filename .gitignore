@@ -9,8 +9,18 @@
 # Exports
 /build/
 
+# Temporary phone-shaped viewport for frames (see the fusion-autoplay skill)
+/override.cfg
+
 # Local preview server config
 /.claude/launch.json
 
 # Downloaded asset packs (CC0); only the models in use are copied to assets/
 assets_src/
+
+# graphify (local knowledge graph and its hooks)
+/graphify-out/
+/.githooks/post-checkout
+/.githooks/post-commit
+/.githooks/post-merge
+/.githooks/post-rewrite

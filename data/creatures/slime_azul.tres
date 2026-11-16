@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CreatureData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/creature_data.gd" id="1_data"]
+
+[resource]
+script = ExtResource("1_data")
+id = "slime_azul"
+display_name = "Slime azul"
+level = 3
+radius = 0.52
+color = Color(0.247, 0.486, 1, 1)
+accent = Color(1, 0.62, 0.769, 1)
+look = "slime_mejillas"
+lore = "Más grande, más fresco y con mejillas. Se sonroja si lo miras mucho."

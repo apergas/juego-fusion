@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Pre-commit del juego: el del design system (addons/design_system/hooks/pre-commit).
+# Se activa una vez por clon: git config core.hooksPath .githooks
+exec bash addons/design_system/hooks/pre-commit "$@"

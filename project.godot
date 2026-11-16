@@ -10,11 +10,14 @@ config_version=5
 
 [application]
 
-config/name="Fusión de criaturas"
-config/version="0.0.0"
+config/name="¡Plop!"
+config/version="0.1.0"
+run/main_scene="res://scenes/title/title.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="Godot/app_userdata/juego-fusion"
 boot_splash/show_image=false
+boot_splash/bg_color=Color(0.0549, 0.0314, 0.1255, 1)
+config/icon="res://assets/pwa/icon_512.png"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [display]

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CreatureData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/creature_data.gd" id="1_data"]
+
+[resource]
+script = ExtResource("1_data")
+id = "murcielago"
+display_name = "Murciélago"
+level = 5
+radius = 0.82
+color = Color(0.69, 0.478, 0.91, 1)
+accent = Color(0.416, 0.247, 0.627, 1)
+look = "murcielago"
+lore = "Duerme boca abajo, incluso dentro de un tarro. Sobre todo dentro de un tarro."
