@@ -78,6 +78,8 @@ func _ready() -> void:
 		_autopilot.close_options = _close_options
 		_autopilot.keep_round = keep_round
 		_autopilot.resume_round = resume_round
+		_autopilot.swap = swap_waiting
+		_autopilot.break_creature = break_creature
 		_autopilot.quit_requested.connect(_quit)
 		add_child(_autopilot)
 	if _resume and not _profile.saved_round.is_empty():
