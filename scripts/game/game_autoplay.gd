@@ -4,21 +4,21 @@ class_name GameAutoplay extends Node
 ## or, with none, where the pile is lowest (_choose_x()). Before a drop it uses Cambiar when the
 ## waiting creature has no settled mate and «Siguiente» has one, and while the danger has counted
 ## BREAK_AT seconds it uses Romper on the settled creature that reaches highest, not again for
-## BREAK_GAP seconds (`Cambia: gota por seta`, `Rompe: lobo`; after each round `Ayudas: 2 Romper,
-## 5 Cambiar`, with the averages `Ayudas de media: ...`). It prints what a reader of the log
-## follows: each drop (`Suelta: gota en x=1.2`), merge (`Fusión: slime_azul (combo 2)`) and new
-## creature (`Nueva: lobo`), the result of each round (`Partida: 1240 puntos, máxima golem,
-## 3 min 10 s`) and, with --autoplay-games=N, the averages of the N rounds (`Media de ...`); with
-## --autoplay-save, the save written and read back after each round (`Guardado:` and `Cargado:`,
-## the same); with --autoplay-resume, RESUME_AT seconds into the first round, the round kept as if
-## the player left and read back from the file (`Tarro guardado:` and `Tarro leído:`, the same),
-## then played on from there (`Tarro seguido:`). With --autoplay-menu it opens the pause once,
-## TOUR_PAUSE_AT seconds into the first round, then Opciones over it, TOUR_STEP seconds each
-## (start_menu_tour()). END_WAIT seconds after a round it starts the next (restart) or, after the
-## last, asks to quit (quit_requested). Each round it checks that no creature left the plane. Uses
-## only Game's Callables (drop, restart, open_pause, close_pause, open_options, close_options,
-## keep_round, resume_round, swap, break_creature) and the Jar's public functions; never stores
-## Game or a Jar (it asks jar_of each time: the Jar changes every round).
+## BREAK_GAP seconds (`Cambia: gota por seta`, `Rompe: lobo`; after each round
+## `Ayudas: 2 Romper, 5 Cambiar`, with the averages `Ayudas de media: ...`). It prints what a
+## reader of the log follows: each drop (`Suelta: gota en x=1.2`), merge (`Fusión: slime_azul
+## (combo 2)`) and new creature (`Nueva: lobo`), the result of each round (`Partida: 1240 puntos,
+## máxima golem, 3 min 10 s`) and, with --autoplay-games=N, the averages of the N rounds (`Media
+## de ...`); with --autoplay-save, the save written and read back after each round (`Guardado:`
+## and `Cargado:`, the same); with --autoplay-resume, RESUME_AT seconds into the first round, the
+## round kept as if the player left and read back from the file (`Tarro guardado:` and `Tarro
+## leído:`, the same), then played on from there (`Tarro seguido:`). With --autoplay-menu it opens
+## the pause once, TOUR_PAUSE_AT seconds into the first round, then Opciones over it, TOUR_STEP
+## seconds each (start_menu_tour()). END_WAIT seconds after a round it starts the next (restart)
+## or, after the last, asks to quit (quit_requested). Each round it checks that no creature left
+## the plane. Uses only Game's Callables (drop, restart, open_pause, close_pause, open_options,
+## close_options, keep_round, resume_round, swap, break_creature) and the Jar's public functions;
+## never stores Game or a Jar (it asks jar_of each time: the Jar changes every round).
 
 signal quit_requested
 
@@ -61,6 +61,8 @@ var _think := THINK
 ## Counts down after a round; below 0, no round is over.
 var _end_wait := -1.0
 var _results: Array[Dictionary] = []
+## Per finished round: x the Romper used, y the Cambiar used.
+var _helps: Array[Vector2i] = []
 var _breaks_used := 0
 var _swaps_used := 0
 var _break_wait := 0.0
@@ -139,8 +141,7 @@ func on_round_over(result: Dictionary, saved: Dictionary) -> void:
 	print("Partida: %d puntos, máxima %s, %s" % [result.score, Chain.IDS[result.max_level - 1],
 		GameState.time_text(result.seconds)])
 	print("Ayudas: %d Romper, %d Cambiar" % [_breaks_used, _swaps_used])
-	result.breaks = _breaks_used
-	result.swaps = _swaps_used
+	_helps.append(Vector2i(_breaks_used, _swaps_used))
 	_breaks_used = 0
 	_swaps_used = 0
 	_break_wait = 0.0
@@ -229,16 +230,17 @@ func _print_averages() -> void:
 		GameState.time_text(seconds / n), GOAL_LEVEL, goal, n])
 	var breaks := 0
 	var swaps := 0
-	for result in _results:
-		breaks += int(result.breaks)
-		swaps += int(result.swaps)
+	for used in _helps:
+		breaks += used.x
+		swaps += used.y
 	print("Ayudas de media: %.1f Romper, %.1f Cambiar" % [breaks / float(n), swaps / float(n)])
 
 
 ## Cambiar before a drop, when the waiting creature has no settled mate in the jar and «Siguiente»
 ## has one.
 func _maybe_swap(state: GameState, bodies: Array[CreatureBody]) -> void:
-	if not PowerUps.can_swap(state) or _has_mate(state.current, bodies) 			or not _has_mate(state.next, bodies):
+	if not PowerUps.can_swap(state) or _has_mate(state.current, bodies) \
+			or not _has_mate(state.next, bodies):
 		return
 	var waiting: String = Chain.IDS[state.current - 1]
 	if swap.call():
