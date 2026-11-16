@@ -19,8 +19,9 @@ The code says what each script does; this is the map, plus what the code can't t
 - `scripts/jar/` — `Jar` (the jar and its creatures as physics bodies; it only reports what happens) and its pieces (`DropAim`, `MergeWatcher`, `DangerLine`, `FusionFx`); the builders `JarBuilder` and `CreatureLooks`.
 - `scripts/ui/` — windows and the HUD; `scripts/audio/` — effects (and later music), all synthesized in code.
 - `data/creatures/<id>.tres` — `CreatureData`: one per link of the chain.
+- `assets/fonts/` — Baloo 2 (display) and Nunito (ui), variable, OFL, copied from Villaclaro; `assets/CREDITS.md` says where every asset comes from.
 - `addons/design_system/` — the design system's core, a **git submodule** (its own repository, `godot-design-system`), the same in every game and never edited from here. The game's layer is `design_system.json` (every path the tools read), `docs/design-system/` (its tokens, its docs, its components) and `UiTheme`.
-- `docs/` — `ideas.md`, `documento-maestro.md` (the versions and what each holds), `specs/`, `plans/` and `design-system/`. Specs and plans go here, not in `docs/boost/`.
+- `docs/` — `ideas.md`, `documento-maestro.md` (the versions and what each holds), `specs/`, `plans/` and `design-system/` (`2-fundamentos.md` documents every token of the game's layer, `4-accesibilidad.md` its contrast pairs). Specs and plans go here, not in `docs/boost/`.
 
 What the code does not explain:
 
