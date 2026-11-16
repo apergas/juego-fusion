@@ -44,3 +44,4 @@ Physics is not exactly the same between runs, even with `--seed`: read the balan
 ## Measured
 
 - 0.1.0 (Task 13), `--autoplay-games=20` at `--fixed-fps 60`, headless: mean 11537 puntos, most frequent biggest dragon (18 of 20), mean round 2 min 26 s, creature 6 or more in 20 of 20; about 1 min of real time. Spawner weights 4, 3, 2, 1, friction 0.4, bounce 0.1, angular damp 1.0.
+- 0.2.0 (Task 7), the same run: mean 12876 puntos, most frequent biggest dragon (17 of 20), mean round 2 min 38 s, creature 6 or more in 20 of 20; about 1 min of real time. Nothing of the balance changed since 0.1.0.
