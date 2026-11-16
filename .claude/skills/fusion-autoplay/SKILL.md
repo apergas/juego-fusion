@@ -36,6 +36,10 @@ Physics is not exactly the same between runs, even with `--seed`: read the balan
   ```
   — the canvas a 360 × 740 phone gets with aspect expand, at twice its size — run the same command, then **delete `override.cfg`**.
 - **The menu tour** (`--autoplay-menu`): `APPDATA="$S/appdata" ./tools/godot.cmd --path . --write-movie $S/frames/f.png --fixed-fps 10 --quit-after 200 -- --autoplay --autoplay-menu`: the title (frames 0–19), the bestiary (20–39), the bestiary scrolled to its end (40–59), the options (60–79), then the game, whose pause opens 6 s into the round (about frame 140), Opciones opens over it 2 s later (about 160) and everything closes 2 s after that (about 180). Any option in a run: write it in the same save first, e.g. `"options": {"high_contrast": true}`. To see discovered cards, write `save_autoplay.json` first, e.g. `{"version": 2, "best_score": 0, "discovered": ["gota", "slime_verde"], "options": {}, "round": {}}`, in `$S/appdata/Godot/app_userdata/juego-fusion/`.
+- **The tour with a kept round:** write `save_autoplay.json` first with a `"round"` (the example below); the title shows «Seguir» (frames 0–19), the bestiary and the options as above (20–79), the question of «Jugar» (80–99), then the game resumes the round (from about frame 100: its three creatures, 340 points); its pause opens 6 s into the game (about frame 160).
+  ```
+  {"version": 2, "best_score": 900, "discovered": ["gota", "slime_verde", "slime_azul", "seta"], "options": {}, "round": {"score": 340, "combo": 0, "max_level": 4, "since_merge": 1.0, "current": 2, "next": 1, "can_drop": true, "wait_left": 0.0, "aim_x": 0.0, "danger_time": 0.0, "elapsed": 42.0, "rng_state": "12345", "creatures": [{"level": 4, "x": -2.0, "y": 0.66, "angle": 0.0, "vx": 0.0, "vy": 0.0, "spin": 0.0, "age": 30.0}, {"level": 3, "x": 0.5, "y": 0.52, "angle": 0.4, "vx": 0.0, "vy": 0.0, "spin": 0.0, "age": 20.0}, {"level": 1, "x": 2.2, "y": 0.3, "angle": 0.0, "vx": 0.0, "vy": 0.0, "spin": 0.0, "age": 5.0}]}}
+  ```
 
 ## Measured
 

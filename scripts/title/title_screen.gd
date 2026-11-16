@@ -1,10 +1,16 @@
 class_name TitleScreen extends Node
-## Main scene. Shows the game's name over the empty jar and its backdrop, with its big buttons
-## in the lower half. Owns the only AudioDirector, the options and the profile (the record and the bestiary), loaded
-## from the save (SaveStore) at the start, and creates a Game for each
-## session; when the Game emits quit_to_title it frees it and shows the title again. Pattern
-## taken from Villaclaro's scripts/title/title_screen.gd. With --autoplay the Game starts at once,
-## and the run quits when it goes back to the title. Bestiario and Opciones open a BestiaryWindow or an OptionsWindow over the title; an options change is put into effect at once (DisplaySettings, the volume) and saved. With --autoplay-menu too, the title first shows itself, the bestiary and the options (_tour()), then starts the Game.
+## Main scene. Shows the game's name over the empty jar and its backdrop, with its big buttons in
+## the lower half: Seguir (only while a round is kept), Jugar, Bestiario and Opciones. Owns the
+## only AudioDirector, the options and the profile (the record, the bestiary and the kept round),
+## loaded from the save (SaveStore) at the start, and creates a Game for each session; when the
+## Game emits quit_to_title it frees it and shows the title again. Pattern taken from
+## Villaclaro's scripts/title/title_screen.gd. Seguir resumes the kept round; Jugar with one kept
+## asks first (a ConfirmWindow: Empezar forgets it). Bestiario and Opciones open a BestiaryWindow
+## or an OptionsWindow over the title; an options change is put into effect at once
+## (DisplaySettings, the volume) and saved. With --autoplay the Game starts at once (a new round)
+## and the run quits when it goes back to the title; with --autoplay-menu too, the title first
+## shows itself, the bestiary, the options and, with a round kept, the question of Jugar
+## (_tour()), then starts the Game (resuming the kept round, if there is one).
 
 const GAME_SCENE := preload("res://scenes/game/game.tscn")
 const TITLE_TEXT := "¡Plop!"
@@ -12,6 +18,11 @@ const SUBTITLE_TEXT := "junta dos iguales"
 const PLAY_TEXT := "Jugar"
 const BESTIARY_TEXT := "Bestiario"
 const OPTIONS_TEXT := "Opciones"
+const RESUME_TEXT := "Seguir"
+const NEW_ROUND_TITLE := "¿Tarro nuevo?"
+const NEW_ROUND_TEXT := "El tarro a medias se perderá."
+const NEW_ROUND_YES := "Empezar"
+const NEW_ROUND_NO := "Volver"
 
 var _audio: AudioDirector
 var _options: GameOptions
@@ -116,7 +127,9 @@ func _build_menu() -> void:
 	_buttons.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_buttons.add_theme_constant_override(&"separation", UiTokens.SPACE_4)
 	column.add_child(_buttons)
-	_add_button(PLAY_TEXT, _start_game)
+	if _has_kept_round():
+		_add_button(RESUME_TEXT, _start_game.bind(true))
+	_add_button(PLAY_TEXT, _on_play)
 	_add_button(BESTIARY_TEXT, _open_bestiary)
 	_add_button(OPTIONS_TEXT, _open_options)
 	_bottom = Control.new()
@@ -141,6 +154,30 @@ func _add_button(text: String, action: Callable) -> Button:
 		action.call())
 	_buttons.add_child(button)
 	return button
+
+
+func _has_kept_round() -> bool:
+	return not _profile.saved_round.is_empty()
+
+
+## Jugar: a new round; with a round kept, it asks first.
+func _on_play() -> void:
+	if not _has_kept_round():
+		_start_game()
+		return
+	if _window:
+		return
+	var window := ConfirmWindow.new(NEW_ROUND_TITLE, NEW_ROUND_TEXT, NEW_ROUND_YES, NEW_ROUND_NO)
+	window.confirmed.connect(_start_new_round)
+	window.closed.connect(_close_window)
+	_show_window(window)
+
+
+## Empezar: the kept round is forgotten (and the save says so at once), and a new one starts.
+func _start_new_round() -> void:
+	_profile.saved_round = {}
+	SaveStore.save(_profile, _options)
+	_start_game()
 
 
 func _open_bestiary() -> void:
@@ -180,13 +217,14 @@ func _close_window() -> void:
 		_window = null
 
 
-func _start_game() -> void:
+## A Game for a session: with resume it starts from the kept round (Seguir).
+func _start_game(resume := false) -> void:
 	if _game:
 		return
 	_close_window()
 	_close_title()
 	_game = GAME_SCENE.instantiate() as Game
-	_game.setup(_audio, _options, _profile)
+	_game.setup(_audio, _options, _profile, resume)
 	_game.quit_to_title.connect(_on_quit_to_title)
 	add_child(_game)
 
@@ -204,8 +242,9 @@ func _on_quit_to_title() -> void:
 
 
 #region Autoplay
-## --autoplay-menu: the title, the bestiary (and its end), the options, then the game. A window
-## is looked up again after each wait: it may have gone.
+## --autoplay-menu: the title, the bestiary (and its end), the options and, with a round kept, the
+## question of Jugar (closed with Volver), then the game, resuming the kept round if there is one.
+## A window is looked up again after each wait: it may have gone.
 func _tour() -> void:
 	await get_tree().create_timer(TOUR_STEP).timeout
 	_open_bestiary()
@@ -218,5 +257,9 @@ func _tour() -> void:
 	_open_options()
 	await get_tree().create_timer(TOUR_STEP).timeout
 	_close_window()
-	_start_game()
+	if _has_kept_round():
+		_on_play()
+		await get_tree().create_timer(TOUR_STEP).timeout
+		_close_window()
+	_start_game(_has_kept_round())
 #endregion
