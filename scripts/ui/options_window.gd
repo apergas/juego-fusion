@@ -1,14 +1,15 @@
 class_name OptionsWindow extends ModalWindow
-## Node: Opciones, from the title or over the pause (the core's OptionRow): the effects volume (a
-## slider in steps of 10 %, its value beside it), vibration and high contrast (two selectors,
-## Sí / No). Each change is applied at once: it changes the GameOptions it was given and emits
-## changed; its owner puts it into effect and saves. There is no Aceptar: Volver, the scrim or Esc
-## close it (closed).
+## Node: Opciones, from the title or over the pause (the core's OptionRow): the music and the
+## effects volumes (two sliders in steps of 10 %, each with its value beside it), vibration and
+## high contrast (two selectors, Sí / No). Each change is applied at once: it changes the
+## GameOptions it was given and emits changed; its owner puts it into effect and saves. There is
+## no Aceptar: Volver, the scrim or Esc close it (closed).
 
 signal changed
 signal closed
 
 const TITLE_TEXT := "Opciones"
+const MUSIC_TEXT := "Música"
 const SFX_TEXT := "Efectos"
 const VIBRATION_TEXT := "Vibración"
 const CONTRAST_TEXT := "Alto contraste"
@@ -19,25 +20,15 @@ const BACK_TEXT := "Volver"
 const STEP := 0.1
 
 var _options: GameOptions
-var _percent: Label
 
 
 func _init(options: GameOptions) -> void:
 	super(TITLE_TEXT)
 	_options = options
-	var sfx_row := _row(SFX_TEXT)
-	var slider := HSlider.new()
-	slider.min_value = 0.0
-	slider.max_value = 1.0
-	slider.step = STEP
-	slider.value = options.sfx_volume
-	slider.custom_minimum_size = Vector2(UiTokens.SLIDER_W, UiTokens.TOUCH_TARGET)
-	slider.value_changed.connect(_on_volume)
-	sfx_row.add_child(slider)
-	_percent = Label.new()
-	_percent.theme_type_variation = UiTheme.CAPTION
-	sfx_row.add_child(_percent)
-	_show_percent()
+	_slider(_row(MUSIC_TEXT), options.music_volume, func(value: float) -> void:
+		_options.music_volume = value)
+	_slider(_row(SFX_TEXT), options.sfx_volume, func(value: float) -> void:
+		_options.sfx_volume = value)
 	_selector(_row(VIBRATION_TEXT), options.vibration, func(on: bool) -> void:
 		_options.vibration = on
 		changed.emit())
@@ -63,6 +54,26 @@ func _row(text: String) -> HBoxContainer:
 	return row
 
 
+## A volume slider of 0..1 in STEP steps with its percent beside it; on_change gets each new
+## value, then changed is emitted.
+func _slider(row: HBoxContainer, value: float, on_change: Callable) -> void:
+	var slider := HSlider.new()
+	slider.min_value = 0.0
+	slider.max_value = 1.0
+	slider.step = STEP
+	slider.value = value
+	slider.custom_minimum_size = Vector2(UiTokens.SLIDER_W, UiTokens.TOUCH_TARGET)
+	row.add_child(slider)
+	var percent := Label.new()
+	percent.theme_type_variation = UiTheme.CAPTION
+	percent.text = PERCENT_TEXT % roundi(value * 100.0)
+	row.add_child(percent)
+	slider.value_changed.connect(func(new_value: float) -> void:
+		on_change.call(new_value)
+		percent.text = PERCENT_TEXT % roundi(new_value * 100.0)
+		changed.emit())
+
+
 ## Sí / No, the active one filled; on_change gets the new value.
 func _selector(row: HBoxContainer, value: bool, on_change: Callable) -> void:
 	var group := ButtonGroup.new()
@@ -77,13 +88,3 @@ func _selector(row: HBoxContainer, value: bool, on_change: Callable) -> void:
 		button.custom_minimum_size = Vector2(UiTokens.TOUCH_TARGET, UiTokens.TOUCH_TARGET)
 		button.pressed.connect(func() -> void: on_change.call(choice))
 		row.add_child(button)
-
-
-func _on_volume(value: float) -> void:
-	_options.sfx_volume = value
-	_show_percent()
-	changed.emit()
-
-
-func _show_percent() -> void:
-	_percent.text = PERCENT_TEXT % roundi(_options.sfx_volume * 100.0)

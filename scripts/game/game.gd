@@ -1,6 +1,7 @@
 class_name Game extends Node
 ## One play session, created by TitleScreen (setup() before add_child); run on its own
-## (res://scenes/game/game.tscn) it loads the save and makes its own AudioDirector. A coordinator:
+## (res://scenes/game/game.tscn) it loads the save and makes its own AudioDirector; it plays the
+## jar's tune (MusicScore.JAR). A coordinator:
 ## it owns the round's GameState, the current Jar (a new one each round), the game's clock (the
 ## round's time, the wait after a drop, the combo's clock and the danger's count, all on the
 ## physics frame) and the profile's record, bestiary and kept round, which it saves at the end of
@@ -56,7 +57,8 @@ func _ready() -> void:
 	if _audio == null:
 		_audio = AudioDirector.new()
 		add_child(_audio)
-		_audio.set_volume(_options.sfx_volume)
+		_audio.set_volumes(_options.music_volume, _options.sfx_volume)
+	_audio.play_music(MusicScore.JAR)
 	_hud = Hud.new()
 	_hud.pause_requested.connect(open_pause)
 	_hud.swap_requested.connect(swap_waiting)
@@ -273,7 +275,7 @@ func _close_options() -> void:
 
 
 func _on_options_changed() -> void:
-	_audio.set_volume(_options.sfx_volume)
+	_audio.set_volumes(_options.music_volume, _options.sfx_volume)
 	_audio.play_sfx(SfxLibrary.CURSOR)
 	DisplaySettings.apply(get_window(), _options)
 	SaveStore.save(_profile, _options)

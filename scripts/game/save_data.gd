@@ -49,6 +49,7 @@ static func apply(data: Dictionary, profile: Profile, options: GameOptions) -> b
 	profile.discovered.assign(current.discovered)
 	profile.saved_round = _kept_round(current)
 	var loaded := GameOptions.from_dict(current.options)
+	options.music_volume = loaded.music_volume
 	options.sfx_volume = loaded.sfx_volume
 	options.vibration = loaded.vibration
 	options.high_contrast = loaded.high_contrast

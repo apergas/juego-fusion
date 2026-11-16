@@ -73,7 +73,7 @@ Toda la interfaz se dibuja 1,25 veces más grande que sus tokens (`DisplaySettin
 | `hud-button` | 64 | el botón de pausa del HUD |
 | `next-view` | 80 | la criatura de «Siguiente» |
 | `bestiary-view` | 160 | la criatura de una ficha del bestiario |
-| `slider-w` | 240 | el deslizador de efectos |
+| `slider-w` | 240 | los deslizadores de volumen (música y efectos) |
 | `hud-combo-top` | 196 | dónde empieza «¡Combo ×n!», sobre la boca del tarro, y la pista de Romper |
 | `power-button-w` × `hud-button` | 176 × 64 | los botones de las ayudas, Romper y Cambiar, en las esquinas de abajo |
 
