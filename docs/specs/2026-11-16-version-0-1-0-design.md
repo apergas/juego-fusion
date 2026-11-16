@@ -1,6 +1,6 @@
 # Versión 0.1.0: el tarro jugable
 
-La primera versión jugable de *Fusión de criaturas*: un tarro, ocho criaturas en la cadena, puntos, récord, game over, el bestiario guardado y la versión web en vertical. Cubre M-01 a M-08 del [documento maestro](../documento-maestro.md). Sale de [ideas.md](../ideas.md) («El juego: fusión de criaturas» y «La arquitectura»).
+La primera versión jugable de *¡Plop!*: un tarro, ocho criaturas en la cadena, puntos, récord, game over, el bestiario guardado y la versión web en vertical. Cubre M-01 a M-08 del [documento maestro](../documento-maestro.md). Sale de [ideas.md](../ideas.md) («El juego: fusión de criaturas» y «La arquitectura»).
 
 Lo que importa de esta versión es el **tacto** de las fusiones: soltar, rodar, juntarse y el «¡plop!». Si eso no gusta, todo lo demás da igual.
 
@@ -10,7 +10,7 @@ Se tomaron sin preguntar, con la opción recomendada; cualquiera se puede cambia
 
 | Pregunta | Decisión |
 |---|---|
-| Nombre | *Fusión de criaturas*, provisional (carpeta `juego-fusion`) |
+| Nombre | *¡Plop!* (la carpeta y el repo siguen siendo `juego-fusion`) |
 | 2D o 3D | **3D** con cámara ortográfica de frente: las criaturas son low-poly facetadas, como las de Villaclaro, y la física es la de Jolt, encerrada en un plano |
 | Criaturas | Un constructor nuevo y pequeño (`CreatureLooks`), no el `CreatureBuilder` de Villaclaro: aquel cuelga de `BattleActor` y `ActorLooks`. Se copia `LowPoly`, recortado a lo que se usa |
 | Ayudas (Romper, Cambiar) | Fuera de la 0.1.0; van en la 0.2.0 |

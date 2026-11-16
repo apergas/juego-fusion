@@ -220,7 +220,7 @@ function pile(extra = []) { return settle(BASE.concat(extra)).map(([i, x, y]) =>
 
 const screens = [];
 screens.push([`Título`, `<div class="phone">${motes()}
-  <div class="logo">Fusión<br>de criaturas<small>junta dos iguales</small></div>
+  <div class="logo">¡Plop!<small>junta dos iguales</small></div>
   <div class="pile">${[[0, 62, 12], [2, 108, 20], [4, 172, 30], [1, 232, 14], [6, 290, 36]].map(([i, x, y]) => `<div class="c" style="left:${x}px;bottom:${y + 20}px">${creature(i, 36)}</div>`).join("")}</div>
   <div class="menu"><div class="btn primary">Jugar</div><div class="btn">Bestiario</div><div class="btn ghost">Opciones</div></div>
   ${overlays()}</div>`, `<b>Título.</b> Tres botones grandes en la zona del pulgar; el logotipo y unas criaturas arriba, solo para mirar.`]);
