@@ -1,0 +1,67 @@
+/* Generado por addons/design_system/tools/gen_ui_tokens.gd desde docs/design-system/tokens.json y addons/design_system/tokens/base.json. No se edita a mano: cambia tokens.json y regenera. */
+:root {
+	--surface-window: #1c1c22e6;
+	--surface-window-solid: #1c1c22;
+	--surface-selected: #2e2e38;
+	--surface-track: #0000008c;
+	--surface-scrim: #00000080;
+	--border-window: #ffffff;
+	--border-subtle: #4a4a56;
+	--border-focus: #4d9fff;
+	--text-primary: #ffffff;
+	--text-secondary: #b8b8c4;
+	--text-disabled: #80808c;
+	--text-accent: #4d9fff;
+	--text-money: #e6c04d;
+	--text-positive: #66d97a;
+	--text-negative: #ff7066;
+	--text-danger: #ff9933;
+	--text-info: #85a8ff;
+	--text-on-fill: #ffffff;
+	--text-outline: #000000;
+	--space-1: 4px;
+	--space-2: 8px;
+	--space-3: 12px;
+	--space-4: 16px;
+	--space-5: 20px;
+	--space-6: 24px;
+	--space-8: 32px;
+	--space-12: 48px;
+	--radius-s: 4px;
+	--radius-m: 8px;
+	--radius-l: 12px;
+	--radius-full: 999px;
+	--border-1: 1px;
+	--border-2: 2px;
+	--border-3: 3px;
+	--outline-s: 4px;
+	--outline-m: 8px;
+	--outline-l: 12px;
+	--outline-xl: 18px;
+	--touch-target: 56px;
+	--touch-min-width: 120px;
+	--row-height: 40px;
+	--cursor-size: 14px;
+	--icon-m: 24px;
+	--window-w-s: 240px;
+	--window-w-m: 360px;
+	--window-w-l: 480px;
+	--window-w-xl: 640px;
+	--window-w-max: 1000px;
+	--opacity-window: 0.9;
+	--opacity-faded: 0.5;
+	--shadow-window: 0 4px 12px #00000073;
+	--font-display: system-ui, sans-serif;
+	--font-ui: system-ui, sans-serif;
+}
+
+[data-theme="alto-contraste"] {
+	--surface-window: #0e0e12;
+	--surface-window-solid: #0e0e12;
+	--surface-selected: #3a3a48;
+	--surface-track: #000000;
+	--surface-scrim: #000000b3;
+	--border-subtle: #9a9aa8;
+	--text-secondary: #dadae2;
+	--text-disabled: #9a9aa6;
+}
