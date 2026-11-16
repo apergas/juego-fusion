@@ -5,8 +5,8 @@ class_name Game extends Node
 ## clock (the round's time, the wait after a drop, the combo's clock and the danger's count, all
 ## on the physics frame) and the profile's record and bestiary, which it saves at the end of each round and at each discovery. The
 ## Jar only reports (released, merge_found); the rules (Chain, Spawner, Scoring, Danger, Bestiary) decide;
-## Game plays it back through the Jar, the Hud and the windows. Its pieces: the Hud, the EndWindow (created at the
-## end of a round) and GameAutoplay (only with --autoplay). Esc goes back to the title
+## Game plays it back through the Jar, the Hud and the windows. Its pieces: the Hud, the PauseWindow and the EndWindow (created
+## when needed) and GameAutoplay (only with --autoplay). Esc and the HUD's button open the pause; Salir and Salir al título go back to the title
 ## (quit_to_title).
 
 signal quit_to_title
@@ -18,6 +18,8 @@ var _profile: Profile
 var _jar: Jar
 var _hud: Hud
 var _end: EndWindow
+var _pause: PauseWindow
+var _options_window: OptionsWindow
 var _autopilot: GameAutoplay
 ## How many rounds this session has started: the seed of each is --seed=<n> plus it.
 var _round := 0
@@ -41,6 +43,7 @@ func _ready() -> void:
 		add_child(_audio)
 		_audio.set_volume(_options.sfx_volume)
 	_hud = Hud.new()
+	_hud.pause_requested.connect(open_pause)
 	add_child(_hud)
 	if RunFlags.autoplay():
 		_autopilot = GameAutoplay.new()
@@ -48,9 +51,15 @@ func _ready() -> void:
 			RunFlags.autoplay_games(), RunFlags.autoplay_save())
 		_autopilot.drop = drop_at
 		_autopilot.restart = _restart
+		_autopilot.open_pause = open_pause
+		_autopilot.close_pause = close_pause
+		_autopilot.open_options = _open_options
+		_autopilot.close_options = _close_options
 		_autopilot.quit_requested.connect(_quit)
 		add_child(_autopilot)
 	_start_round()
+	if _autopilot and RunFlags.autoplay_menu():
+		_autopilot.start_menu_tour()
 
 
 func _physics_process(delta: float) -> void:
@@ -63,7 +72,7 @@ func _physics_process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
-		_quit()
+		open_pause()
 
 
 ## Drops the waiting creature at x (kept inside the jar). The Jar's released and the autoplay
@@ -81,6 +90,59 @@ func drop_at(x: float) -> void:
 	_note_creature(data)
 	Spawner.advance(state)
 	_hud.set_next(Chain.data(state.next))
+
+
+## The pause window over a stopped jar (the whole tree pauses; the window keeps running). Not
+## once the round is over.
+func open_pause() -> void:
+	if state.over or _pause:
+		return
+	get_tree().paused = true
+	_pause = PauseWindow.new()
+	_pause.set_audio(_audio)
+	_pause.resume_requested.connect(close_pause)
+	_pause.options_requested.connect(_open_options)
+	_pause.restart_requested.connect(func() -> void:
+		close_pause()
+		_restart())
+	_pause.quit_requested.connect(func() -> void:
+		close_pause()
+		_quit())
+	add_child(_pause)
+
+
+func close_pause() -> void:
+	if _pause == null:
+		return
+	_close_options()
+	_pause.queue_free()
+	_pause = null
+	get_tree().paused = false
+
+
+## Opciones over the pause: each change is put into effect and saved, as on the title.
+func _open_options() -> void:
+	if _options_window or _pause == null:
+		return
+	_options_window = OptionsWindow.new(_options)
+	_options_window.set_audio(_audio)
+	_options_window.changed.connect(_on_options_changed)
+	_options_window.closed.connect(_close_options)
+	add_child(_options_window)
+
+
+func _close_options() -> void:
+	if _options_window == null:
+		return
+	_options_window.queue_free()
+	_options_window = null
+
+
+func _on_options_changed() -> void:
+	_audio.set_volume(_options.sfx_volume)
+	_audio.play_sfx(SfxLibrary.CURSOR)
+	DisplaySettings.apply(get_window(), _options)
+	SaveStore.save(_profile, _options)
 
 
 ## One physics frame of the round: its clocks, the jar, then the danger's count.

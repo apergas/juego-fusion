@@ -4,13 +4,14 @@ class_name TitleScreen extends Node
 ## from the save (SaveStore) at the start, and creates a Game for each
 ## session; when the Game emits quit_to_title it frees it and shows the title again. Pattern
 ## taken from Villaclaro's scripts/title/title_screen.gd. With --autoplay the Game starts at once,
-## and the run quits when it goes back to the title. Bestiario opens a BestiaryWindow over the title. With --autoplay-menu too, the title first shows itself and the bestiary (_tour()), then starts the Game.
+## and the run quits when it goes back to the title. Bestiario and Opciones open a BestiaryWindow or an OptionsWindow over the title; an options change is put into effect at once (DisplaySettings, the volume) and saved. With --autoplay-menu too, the title first shows itself, the bestiary and the options (_tour()), then starts the Game.
 
 const GAME_SCENE := preload("res://scenes/game/game.tscn")
 const TITLE_TEXT := "¡Plop!"
 const SUBTITLE_TEXT := "junta dos iguales"
 const PLAY_TEXT := "Jugar"
 const BESTIARY_TEXT := "Bestiario"
+const OPTIONS_TEXT := "Opciones"
 
 var _audio: AudioDirector
 var _options: GameOptions
@@ -117,6 +118,7 @@ func _build_menu() -> void:
 	column.add_child(_buttons)
 	_add_button(PLAY_TEXT, _start_game)
 	_add_button(BESTIARY_TEXT, _open_bestiary)
+	_add_button(OPTIONS_TEXT, _open_options)
 	_bottom = Control.new()
 	_bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(_bottom)
@@ -147,6 +149,23 @@ func _open_bestiary() -> void:
 	var window := BestiaryWindow.new(_profile)
 	window.closed.connect(_close_window)
 	_show_window(window)
+
+
+func _open_options() -> void:
+	if _window:
+		return
+	var window := OptionsWindow.new(_options)
+	window.changed.connect(_on_options_changed)
+	window.closed.connect(_close_window)
+	_show_window(window)
+
+
+## Every change at once: the volume (with a tick to hear it), the theme, and the save.
+func _on_options_changed() -> void:
+	_audio.set_volume(_options.sfx_volume)
+	_audio.play_sfx(SfxLibrary.CURSOR)
+	DisplaySettings.apply(get_window(), _options)
+	SaveStore.save(_profile, _options)
 
 
 func _show_window(window: ModalWindow) -> void:
@@ -185,13 +204,18 @@ func _on_quit_to_title() -> void:
 
 
 #region Autoplay
-## --autoplay-menu: the title, the bestiary (and its end), then the game.
+## --autoplay-menu: the title, the bestiary (and its end), the options, then the game. A window
+## is looked up again after each wait: it may have gone.
 func _tour() -> void:
 	await get_tree().create_timer(TOUR_STEP).timeout
 	_open_bestiary()
-	var bestiary := _window as BestiaryWindow
 	await get_tree().create_timer(TOUR_STEP).timeout
-	bestiary.scroll.scroll_vertical = int(bestiary.scroll.get_v_scroll_bar().max_value)
+	var bestiary := _window as BestiaryWindow
+	if is_instance_valid(bestiary):
+		bestiary.scroll.scroll_vertical = int(bestiary.scroll.get_v_scroll_bar().max_value)
+	await get_tree().create_timer(TOUR_STEP).timeout
+	_close_window()
+	_open_options()
 	await get_tree().create_timer(TOUR_STEP).timeout
 	_close_window()
 	_start_game()

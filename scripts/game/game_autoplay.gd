@@ -1,5 +1,5 @@
 class_name GameAutoplay extends Node
-## Node, a piece of Game, only with --autoplay: plays rounds by itself. Each time a creature
+## Node, a piece of Game, only with --autoplay: plays rounds by itself. With --autoplay-menu it opens the pause once, TOUR_PAUSE_AT seconds into the first round, then Opciones over it, TOUR_STEP seconds each (start_menu_tour()). Each time a creature
 ## waits it thinks THINK seconds and drops it over the highest settled creature of its own level,
 ## or, with none, where the pile is lowest (_choose_x()). It prints what a reader of the log
 ## follows: each drop (`Suelta: gota en x=1.2`), merge (`Fusión: slime_azul (combo 2)`) and new
@@ -8,7 +8,7 @@ class_name GameAutoplay extends Node
 ## --autoplay-save, the save written and read back after each round (`Guardado:` and `Cargado:`,
 ## the same). END_WAIT seconds after a round it starts the next (restart) or, after the last,
 ## asks to quit (quit_requested). Each round it checks that no creature left the plane. Uses only
-## Game's Callables (drop, restart) and the Jar's public functions; never stores Game or a Jar
+## Game's Callables (drop, restart, open_pause, close_pause, open_options, close_options) and the Jar's public functions; never stores Game or a Jar
 ## (it asks jar_of each time: the Jar changes every round).
 
 signal quit_requested
@@ -28,6 +28,12 @@ const GOAL_LEVEL := 6
 var drop: Callable
 ## restart.call(): Game's Otra vez.
 var restart: Callable
+## open_pause.call(), close_pause.call(), open_options.call() and close_options.call(): Game's
+## pause and its Opciones (the menu tour).
+var open_pause: Callable
+var close_pause: Callable
+var open_options: Callable
+var close_options: Callable
 var _state_of: Callable
 var _jar_of: Callable
 var _games := 1
@@ -36,6 +42,12 @@ var _think := THINK
 ## Counts down after a round; below 0, no round is over.
 var _end_wait := -1.0
 var _results: Array[Dictionary] = []
+
+#region Autoplay
+## --autoplay-menu: when the pause opens (seconds of the round) and how long each step stays.
+const TOUR_PAUSE_AT := 6.0
+const TOUR_STEP := 2.0
+#endregion
 
 
 ## state_of and jar_of return the current GameState and Jar; games is --autoplay-games,
@@ -92,6 +104,19 @@ func on_round_over(result: Dictionary, saved: Dictionary) -> void:
 		_print_round_trip(saved)
 	_results.append(result)
 	_end_wait = END_WAIT
+
+
+## --autoplay-menu: the pause opens once, then Opciones over it, then everything closes (its
+## timer runs while the tree is paused).
+func start_menu_tour() -> void:
+	await get_tree().create_timer(TOUR_PAUSE_AT, false).timeout
+	open_pause.call()
+	await get_tree().create_timer(TOUR_STEP).timeout
+	open_options.call()
+	await get_tree().create_timer(TOUR_STEP).timeout
+	close_options.call()
+	await get_tree().create_timer(TOUR_STEP).timeout
+	close_pause.call()
 
 
 func _next_round() -> void:

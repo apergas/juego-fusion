@@ -34,7 +34,7 @@ Physics is not exactly the same between runs, even with `--seed`: read the balan
   window/size/viewport_height=1480
   ```
   — the canvas a 360 × 740 phone gets with aspect expand, at twice its size — run the same command, then **delete `override.cfg`**.
-- **The menu tour** (`--autoplay-menu`): `APPDATA="$S/appdata" ./tools/godot.cmd --path . --write-movie $S/frames/f.png --fixed-fps 10 --quit-after 120 -- --autoplay --autoplay-menu`: the title (frames 0–19), the bestiary (20–39), the bestiary scrolled to its end (40–59), then the game. To see discovered cards, write `save_autoplay.json` first, e.g. `{"version": 1, "best_score": 0, "discovered": ["gota", "slime_verde"], "options": {}}`, in `$S/appdata/Godot/app_userdata/juego-fusion/`.
+- **The menu tour** (`--autoplay-menu`): `APPDATA="$S/appdata" ./tools/godot.cmd --path . --write-movie $S/frames/f.png --fixed-fps 10 --quit-after 200 -- --autoplay --autoplay-menu`: the title (frames 0–19), the bestiary (20–39), the bestiary scrolled to its end (40–59), the options (60–79), then the game, whose pause opens 6 s into the round (about frame 140), Opciones opens over it 2 s later (about 160) and everything closes 2 s after that (about 180). Any option in a run: write it in the same save first, e.g. `"options": {"high_contrast": true}`. To see discovered cards, write `save_autoplay.json` first, e.g. `{"version": 1, "best_score": 0, "discovered": ["gota", "slime_verde"], "options": {}}`, in `$S/appdata/Godot/app_userdata/juego-fusion/`.
 
 ## Measured
 

@@ -1,10 +1,12 @@
 class_name Hud extends CanvasLayer
 ## Node, a piece of Game: the round's HUD on layer-hud. Top left the points (SCORE) and the record;
-## top right «Siguiente» with the creature after the waiting one (a CreatureView); «¡Combo ×n!»
+## top right «Siguiente» with the creature after the waiting one (a CreatureView) and the pause button; «¡Combo ×n!»
 ## centred over the mouth of the jar from a combo of 2, for as long as the combo can go on
 ## (Scoring.COMBO_WINDOW); and the notices («¡Nueva criatura: …!»: the core's Notice, one at a
-## time, a new one replaces the old) under the top row. Game calls it. Everything but the buttons
+## time, a new one replaces the old) under the top row. Game calls it; it reports pause_requested. Everything but the buttons
 ## lets the finger through to the jar.
+
+signal pause_requested
 
 const NEXT_TEXT := "Siguiente"
 const RECORD_TEXT := "Récord: %d"
@@ -53,6 +55,10 @@ func _init() -> void:
 	_next = CreatureView.new(UiTokens.NEXT_VIEW)
 	_next.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	next_box.add_child(_next)
+	var pause := PauseButton.new()
+	pause.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	pause.pressed.connect(pause_requested.emit)
+	_row.add_child(pause)
 	_combo = _label(root, UiTheme.COMBO, "")
 	_combo.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	_combo.offset_top = UiTokens.HUD_COMBO_TOP
