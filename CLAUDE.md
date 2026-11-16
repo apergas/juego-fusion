@@ -35,6 +35,8 @@ What the code does not explain:
 - Flags (all read by `RunFlags`): `--autoplay` (rounds that play themselves; the title is skipped and the run quits at the end), `--autoplay-games=N`, `--autoplay-save`, `--autoplay-menu`, `--seed=<n>` (the first round's `Spawner` seed; each next round adds 1) and `--touch`. Physics is not exactly the same between runs, even with a seed.
 - How to run, record and measure autoplay is the project skill `fusion-autoplay` (`.claude/skills/fusion-autoplay/SKILL.md`). A round on autoplay ends by itself one second after the loss; `--autoplay-games=N` prints the averages after the N rounds and quits.
 - The danger: `Game` asks `Jar.highest_top(JarSpec.SETTLE_TIME)` every physics frame and keeps `Danger`'s count in `GameState.danger_time`; at the loss `Jar.freeze_all()` freezes every body and the record is saved before the `EndWindow` opens.
+- A creature in the interface (the HUD's «Siguiente», the bestiary) is a `CreatureView`: its own `SubViewport` with its own 3D world, lit by `JarBuilder.light()`, transparent behind.
+- Phone-shaped frames: `--write-movie` ignores `--resolution`; a temporary `override.cfg` (git-ignored) with a 720 × 1480 viewport gives the canvas a 360 × 740 phone gets (see the `fusion-autoplay` skill). Delete it after the run.
 
 ## Conventions
 

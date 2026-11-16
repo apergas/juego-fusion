@@ -5,7 +5,7 @@ class_name Game extends Node
 ## clock (the round's time, the wait after a drop, the combo's clock and the danger's count, all
 ## on the physics frame) and the profile's record, which it saves at the end of each round. The
 ## Jar only reports (released, merge_found); the rules (Chain, Spawner, Scoring, Danger) decide;
-## Game plays it back through the Jar and the windows. Its pieces: the EndWindow (created at the
+## Game plays it back through the Jar, the Hud and the windows. Its pieces: the Hud, the EndWindow (created at the
 ## end of a round) and GameAutoplay (only with --autoplay). Esc goes back to the title
 ## (quit_to_title).
 
@@ -16,6 +16,7 @@ var _audio: AudioDirector
 var _options: GameOptions
 var _profile: Profile
 var _jar: Jar
+var _hud: Hud
 var _end: EndWindow
 var _autopilot: GameAutoplay
 ## How many rounds this session has started: the seed of each is --seed=<n> plus it.
@@ -39,6 +40,8 @@ func _ready() -> void:
 		_audio = AudioDirector.new()
 		add_child(_audio)
 		_audio.set_volume(_options.sfx_volume)
+	_hud = Hud.new()
+	add_child(_hud)
 	if RunFlags.autoplay():
 		_autopilot = GameAutoplay.new()
 		_autopilot.setup(func() -> GameState: return state, func() -> Jar: return _jar,
@@ -77,6 +80,7 @@ func drop_at(x: float) -> void:
 		_autopilot.on_dropped(data.id, body.position.x)
 	_note_creature(data)
 	Spawner.advance(state)
+	_hud.set_next(Chain.data(state.next))
 
 
 ## One physics frame of the round: its clocks, the jar, then the danger's count.
@@ -108,6 +112,9 @@ func _start_round() -> void:
 	_jar.released.connect(drop_at)
 	_jar.merge_found.connect(_on_merge_found)
 	add_child(_jar)
+	_hud.set_score(0)
+	_hud.set_record(_profile.best_score)
+	_hud.set_next(Chain.data(state.next))
 	_present()
 
 
@@ -137,6 +144,8 @@ func _on_merge_found(a: CreatureBody, b: CreatureBody) -> void:
 		_jar.merge(a, b, data)
 		_audio.play_sfx(SfxLibrary.plop_id(made))
 		_note_creature(data)
+	_hud.set_score(state.score)
+	_hud.show_combo(state.combo)
 	if _autopilot:
 		_autopilot.on_merged(Chain.IDS[made - 1] if made > 0 else "", state.combo)
 
@@ -154,6 +163,7 @@ func _lose() -> void:
 	_jar.show_danger(0.0)
 	_audio.play_sfx(SfxLibrary.LOSE)
 	var new_record := Scoring.record(_profile, state.score)
+	_hud.set_record(_profile.best_score)
 	var saved := SaveStore.save(_profile, _options)
 	_end = EndWindow.new(state.score, Chain.data(state.max_level).display_name, new_record)
 	_end.set_audio(_audio)
