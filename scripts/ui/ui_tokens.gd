@@ -40,7 +40,7 @@ const JUEGO := {
 	&"scene-mote": Color("#fff1b880"),
 	&"jar-back": Color("#0a0618a6"),
 	&"jar-frame": Color("#e9e0ffb3"),
-	&"aim-line": Color("#ffffff40"),
+	&"aim-line": Color("#ffffff73"),
 	&"danger-line": Color("#ffffff59"),
 	&"danger-line-alert": Color("#ff4a4a"),
 	&"creature-silhouette": Color("#0b0716"),

@@ -51,7 +51,7 @@ No son de la interfaz, pero son la paleta del juego: `JarBuilder`, `DropAim`, `D
 | `scene-mote` | las motas de luz que flotan despacio |
 | `jar-back` | el fondo del tarro, algo más oscuro que la escena |
 | `jar-frame` | el marco claro del tarro, como de cristal |
-| `aim-line` | la línea tenue que marca dónde caerá la criatura |
+| `aim-line` | la línea blanca al 45 % que marca dónde caerá la criatura |
 | `danger-line` | la línea de peligro en calma |
 | `danger-line-alert` | la línea de peligro mientras cuenta: parpadea, más deprisa cuanto menos falta |
 | `creature-silhouette` | la silueta de una criatura sin descubrir |

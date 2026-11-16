@@ -6,10 +6,10 @@ class_name CreatureLooks extends RefCounted
 ## - gota: a drop, its tip up;
 ## - slime: a squashed ball with a mouth; slime_mejillas: the same with pink cheeks;
 ## - seta: a cream ball (accent) under a red cap (color) with cream dots;
-## - murcielago: two small wings and two pointed ears;
+## - murcielago: two wings raised over the shoulders and two pointed ears;
 ## - lobo: two ears and a light snout with a dark nose;
 ## - golem: a rougher stone ball with moss on top;
-## - dragon: two horns and two small wings.
+## - dragon: two horns and two small wings raised over the shoulders.
 ## Sizes are fractions of the radius, so a figure reads the same at any size. Seen head on, from
 ## far and on a small screen. silhouette paints every part in creature-silhouette, unlit (the
 ## bestiary's undiscovered card).
@@ -55,7 +55,7 @@ static func build(data: CreatureData, silhouette := false) -> Node3D:
 					Vector3(1.0, 0.8, 0.5))
 		"murcielago":
 			_add(root, LowPoly.blob(_ball(r), SEGMENTS), main)
-			_wings(root, r, 0.34, 1.0, 0.5, 0.62, second)
+			_wings(root, r, 0.36, 0.95, 0.6, 0.95, 35.0, second)
 			_ears(root, r, 0.17, 0.55, 0.28, 6.0, main)
 		"lobo":
 			eye_y = 0.22
@@ -73,7 +73,7 @@ static func build(data: CreatureData, silhouette := false) -> Node3D:
 		"dragon":
 			_add(root, LowPoly.blob(_ball(r), SEGMENTS), main)
 			_ears(root, r, 0.16, 0.6, 0.28, 8.0, second)
-			_wings(root, r, 0.3, 0.85, 0.5, 0.55, second)
+			_wings(root, r, 0.32, 0.9, 0.58, 0.85, 40.0, second)
 		_:
 			_add(root, LowPoly.blob(_ball(r), SEGMENTS), main)
 	_eyes(root, r, eye_y, silhouette)
@@ -117,13 +117,14 @@ static func _ears(root: Node3D, r: float, radius: float, height: float, x: float
 			Vector3(side * x * r, 0.92 * r, 0.0), Vector3(0.0, 0.0, side * lean))
 
 
-## Two flat cones for wings, folded up and back behind the body: none reaches past the radius
-## sideways, so nothing pokes through the jar's wall.
+## Two flat cones for wings, behind the body, raised over the shoulders and leaning out lean
+## degrees, so they show above it. base radius and length in radii, at ±x, y: with the numbers of
+## build() no tip reaches past 0.9 radii sideways, so nothing pokes through the jar's wall.
 static func _wings(root: Node3D, r: float, radius: float, length: float, x: float,
-		y: float, material: Material) -> void:
+		y: float, lean: float, material: Material) -> void:
 	for side: float in [-1.0, 1.0]:
 		_add(root, LowPoly.cone(radius * r, length * r), material,
-			Vector3(side * x * r, y * r, -0.1 * r), Vector3(0.0, 0.0, -side * 75.0),
+			Vector3(side * x * r, y * r, -0.1 * r), Vector3(0.0, 0.0, -side * lean),
 			Vector3(1.0, 1.0, 0.35))
 
 

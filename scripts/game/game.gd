@@ -120,10 +120,12 @@ func close_pause() -> void:
 	get_tree().paused = false
 
 
-## Opciones over the pause: each change is put into effect and saved, as on the title.
+## Opciones over the pause: each change is put into effect and saved, as on the title. The pause
+## (and its scrim) hides while it is open, so it never shows through.
 func _open_options() -> void:
 	if _options_window or _pause == null:
 		return
+	_pause.visible = false
 	_options_window = OptionsWindow.new(_options)
 	_options_window.set_audio(_audio)
 	_options_window.changed.connect(_on_options_changed)
@@ -136,6 +138,8 @@ func _close_options() -> void:
 		return
 	_options_window.queue_free()
 	_options_window = null
+	if _pause:
+		_pause.visible = true
 
 
 func _on_options_changed() -> void:

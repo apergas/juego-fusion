@@ -10,7 +10,7 @@ class_name DropAim extends Node3D
 signal released(x: float)
 
 const KEY_SPEED := 6.0
-const LINE_WIDTH := 0.04
+const LINE_WIDTH := 0.06
 
 var x := 0.0
 var enabled := true
