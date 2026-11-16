@@ -141,7 +141,7 @@ La de [ideas.md](../ideas.md) («La arquitectura») y [CLAUDE.md](../../CLAUDE.m
 
 Lo que el [plan](../plans/2026-11-16-version-0-1-0.md) precisa o cambia de este spec. Si no coinciden, manda el plan.
 
-- **Las opciones también se abren desde la pausa,** con un botón «Opciones» entre Seguir y Empezar de nuevo. Sale de la [maqueta](../design-system/maqueta.html).
+- **Las opciones también se abren desde la pausa,** con un botón «Opciones» entre Seguir y Empezar de nuevo. Sale de la [maqueta](../../../design/maqueta.html).
 - **Orejas, alas y cuernos no pasan del radio de colisión de la criatura** por los lados, así que nada asoma a través de la pared del tarro.
 - **La paleta:** los valores exactos son los del plan; la maqueta solo marcaba la dirección.
 - **La interfaz va a escala 1,25 en todos los dispositivos,** para que el texto se lea en un móvil en vertical.

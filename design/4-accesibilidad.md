@@ -1,6 +1,6 @@
 # Accesibilidad en ¡Plop!
 
-Las reglas generales (4,5:1 en el tema normal, 7:1 en el de alto contraste, nunca solo color) están en la [accesibilidad del núcleo](../../addons/design_system/docs/4-accesibilidad.md). Aquí, los pares comprobados con los valores del juego.
+Las reglas generales (4,5:1 en el tema normal, 7:1 en el de alto contraste, nunca solo color) están en la [accesibilidad del núcleo](../addons/design_system/docs/4-accesibilidad.md). Aquí, los pares comprobados con los valores del juego.
 
 ## Contraste
 

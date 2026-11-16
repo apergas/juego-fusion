@@ -1,6 +1,6 @@
 # Fundamentos de ¡Plop!
 
-Las escalas, las medidas genéricas, los diez estilos de texto y el papel de cada semántico están en los [fundamentos del núcleo](../../addons/design_system/docs/2-fundamentos.md). Aquí está lo del juego: un fondo morado oscuro para que las criaturas destaquen, ventanas moradas translúcidas con marco claro, un acento amarillo para los puntos y lo importante, y texto blanco. Los contrastes están en [accesibilidad](4-accesibilidad.md).
+Las escalas, las medidas genéricas, los diez estilos de texto y el papel de cada semántico están en los [fundamentos del núcleo](../addons/design_system/docs/2-fundamentos.md). Aquí está lo del juego: un fondo morado oscuro para que las criaturas destaquen, ventanas moradas translúcidas con marco claro, un acento amarillo para los puntos y lo importante, y texto blanco. Los contrastes están en [accesibilidad](4-accesibilidad.md).
 
 ## Los valores que el juego da al núcleo
 
