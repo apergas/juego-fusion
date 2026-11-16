@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CreatureData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/creature_data.gd" id="1_data"]
+
+[resource]
+script = ExtResource("1_data")
+id = "lobo"
+display_name = "Lobo de niebla"
+level = 6
+radius = 1.0
+color = Color(0.663, 0.706, 0.761, 1)
+accent = Color(0.89, 0.906, 0.925, 1)
+look = "lobo"
+lore = "Aúlla a la tapa del tarro como si fuera la luna."

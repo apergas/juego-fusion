@@ -12,21 +12,35 @@ It is the second game after *Villaclaro* (`C:\Users\peixe\Documents\rpg-turnos`)
 
 ## Layout
 
-The code says what each script does; this is the map, plus what the code can't tell you. Nothing is written yet: this is the layout the 0.1.0 plan builds.
+The code says what each script does; this is the map, plus what the code can't tell you. Version 0.1.0 built it ([plan](docs/plans/2026-11-16-version-0-1-0.md)).
 
 - `scenes/title/` + `scripts/title/` — `TitleScreen`, the main scene: loads and applies the options, owns the only `AudioDirector`, then creates a `Game`.
-- `scenes/game/` + `scripts/game/` — `Game` (one play session, a coordinator over its pieces) and the pure rules it owns (`GameState`, `SaveData` / `SaveStore`, `RunFlags`, `Chain`, `Scoring`, `Spawner`, `Danger`, `Bestiary`...).
-- `scripts/jar/` — `Jar` (the jar and its creatures as physics bodies; it only reports what happens) and its pieces (`DropAim`, `MergeWatcher`, `DangerLine`, `FusionFx`); the builders `JarBuilder` and `CreatureLooks`.
-- `scripts/ui/` — windows and the HUD; `scripts/audio/` — effects (and later music), all synthesized in code.
-- `data/creatures/<id>.tres` — `CreatureData`: one per link of the chain.
+- `scenes/game/` + `scripts/game/` — `Game` (one play session, a coordinator over its pieces) and the pure rules it owns (`GameState`, `SaveData` / `SaveStore`, `RunFlags`, `Device`, `GameOptions`, `Profile`, `Chain`, `Spawner`, `Scoring`, `Danger`, `Bestiary`, `JarSpec`, `CreatureData`) and its pieces (`GameAutoplay`).
+- `scripts/jar/` — `Jar` (the jar and its creatures as physics bodies; it only reports what happens) and its pieces (`DropAim`, `MergeWatcher`, `DangerLine`, `FusionFx`, `CreatureBody`); the builders `JarBuilder`, `CreatureLooks` and `LowPoly`.
+- `scripts/ui/` — windows (`ModalWindow` and its `EndWindow`, `PauseWindow`, `BestiaryWindow`, `OptionsWindow`), the `Hud` with its `PauseButton`, `CreatureView`, `UiTheme`, `DisplaySettings` and the generated `UiTokens`; `scripts/audio/` — effects (and later music), all synthesized in code.
+- `scripts/tools/` — offline tools, excluded from the export: `pwa_icons.gd`.
+- `data/creatures/<id>.tres` — `CreatureData`: one per link of the chain (`look` picks which features `CreatureLooks` adds to the faceted ball: gota, slime, slime_mejillas, seta, murcielago, lobo, golem, dragon; `color` is the body and its particles, `accent` the features).
+- `assets/fonts/` — Baloo 2 (display) and Nunito (ui), variable, OFL, copied from Villaclaro; `assets/CREDITS.md` says where every asset comes from.
 - `addons/design_system/` — the design system's core, a **git submodule** (its own repository, `godot-design-system`), the same in every game and never edited from here. The game's layer is `design_system.json` (every path the tools read), `docs/design-system/` (its tokens, its docs, its components) and `UiTheme`.
-- `docs/` — `ideas.md`, `documento-maestro.md` (the versions and what each holds), `specs/`, `plans/` and `design-system/`. Specs and plans go here, not in `docs/boost/`.
+- `docs/` — `ideas.md`, `documento-maestro.md` (the versions and what each holds), `specs/`, `plans/` and `design-system/` (`2-fundamentos.md` documents every token of the game's layer, `4-accesibilidad.md` its contrast pairs). Specs and plans go here, not in `docs/boost/`.
 
 What the code does not explain:
 
+- A creature is discovered (`Bestiary`) the first time it is in the jar, dropped or made by a merge; the round says «¡Nueva criatura: …!» and saves at once. `--autoplay-menu` tours the title's screens before the game (`TitleScreen._tour()`, in its `#region Autoplay`).
 - The submodule is the public GitHub repository `apergas/godot-design-system` (its local clone for changing the core is `C:\Users\peixe\Documents\godot-design-system`), pinned to a tag (`v1.0.0`).
 - `scripts/ui/ui_tokens.gd` and `docs/design-system/tokens.css` are generated from `addons/design_system/tokens/base.json` plus `docs/design-system/tokens.json`; never edit them by hand.
-- On desktop `user://` is `%APPDATA%\Godot\app_userdata\juego-fusion\`; autoplay runs save to their own file and never touch the player's.
+- On desktop `user://` is `%APPDATA%\Godot\app_userdata\juego-fusion\`. The one save file is `save.json` (`SaveData` version 1: the record, the discovered ids and the options); autoplay runs save to `save_autoplay.json` and never touch the player's. A damaged file or one of an unknown version is ignored (nothing of it is applied) and kept once as `save.json.bak` before the next save overwrites it.
+- The whole interface is drawn `DisplaySettings.UI_SCALE` (1.25) times bigger than its tokens on every device (`content_scale_factor`): HUD offsets and window sizes are in those units.
+- The jar's numbers are the rule `JarSpec`: floor at y 0, walls at x ±3.0, danger line at 7.4, the waiting creature at 8.0; the orthographic camera (`KEEP_HEIGHT`) always shows 7.6 × 13.5 m around y 5.1 (`camera_size()`), so the HUD has 3.2 m of room above the jar on any phone.
+- A creature in the jar is a `CreatureBody` (`RigidBody3D`, a sphere of its radius) locked on Z and turning only around it; the waiting creature at the top is only a figure (`DropAim`), not a body. Touches arrive as mouse events (`emulate_mouse_from_touch`), so `DropAim` reads only the mouse; a Control under the finger (the pause button) takes the event first.
+- `MergeWatcher` polls each creature's `get_colliding_bodies()` every physics frame (contact monitor on) and marks both of a pair `merged` at once; `Jar.merge()` takes the two out of the physics space at once (`remove_child`) and the new creature's collider grows from 0.6 to its radius in 0.2 s (`CreatureBody.grow()`), so a merge pushes instead of kicking.
+- Flags (all read by `RunFlags`): `--autoplay` (rounds that play themselves; the title is skipped and the run quits at the end), `--autoplay-games=N`, `--autoplay-save`, `--autoplay-menu`, `--seed=<n>` (the first round's `Spawner` seed; each next round adds 1) and `--touch`. Physics is not exactly the same between runs, even with a seed.
+- How to run, record and measure autoplay is the project skill `fusion-autoplay` (`.claude/skills/fusion-autoplay/SKILL.md`). A round on autoplay ends by itself one second after the loss; `--autoplay-games=N` prints the averages after the N rounds and quits.
+- The danger: `Game` asks `Jar.highest_top(JarSpec.SETTLE_TIME)` every physics frame and keeps `Danger`'s count in `GameState.danger_time`; at the loss `Jar.freeze_all()` freezes every body and the record is saved before the `EndWindow` opens.
+- A creature in the interface (the HUD's «Siguiente», the bestiary) is a `CreatureView`: its own `SubViewport` with its own 3D world, lit by `JarBuilder.light()`, transparent behind.
+- Phone-shaped frames: `--write-movie` ignores `--resolution`; a temporary `override.cfg` (git-ignored) with a 720 × 1480 viewport gives the canvas a 360 × 740 phone gets (see the `fusion-autoplay` skill). Delete it after the run.
+- The pause pauses the whole tree (`get_tree().paused`): the physics stops with it, and so do the game's clock (round time, drop wait, combo window, danger count; all in `Game._physics_process`). Every `ModalWindow` (end, pause, bestiary, options) keeps processing (`PROCESS_MODE_ALWAYS`), and so does the `AudioDirector`; Esc or the scrim is «volver» (Seguir in the pause; nothing in the end window). The pause's Opciones opens the same `OptionsWindow` over it (the pause stays underneath); `Game` opens the pause only while the round is on (the HUD button sits under every window's scrim).
+- The options are applied at once (no Aceptar) and saved in the same `save.json` as the record and the bestiary.
 
 ## Conventions
 
@@ -67,7 +81,7 @@ Verify by hand instead: `--check-only` on changed scripts, run the game, autopla
 
 ## Web deploy
 
-The `Web` preset in `export_presets.cfg` is single-threaded (`variant/thread_support=false`, GitHub Pages can't send the headers threads need) and a PWA in portrait (`progressive_web_app/orientation=2`, `display` Fullscreen), so a phone can install it to its home screen. Its `html/head_include`, taken from Villaclaro, sets the iOS icon's name, turns `preserveDrawingBuffer` off (the engine asks for it, which left the canvas black and spammed `glBufferData` errors in Chrome on Android) and covers the page with "El navegador ha cortado los gráficos…" and a "Recargar" button when the browser loses the WebGL context. The PWA icons (`assets/pwa/`) are still to be drawn.
+The `Web` preset in `export_presets.cfg` is single-threaded (`variant/thread_support=false`, GitHub Pages can't send the headers threads need) and a PWA in portrait (`progressive_web_app/orientation=2`, `display` Fullscreen), so a phone can install it to its home screen. Its `html/head_include`, taken from Villaclaro, sets the iOS icon's name, turns `preserveDrawingBuffer` off (the engine asks for it, which left the canvas black and spammed `glBufferData` errors in Chrome on Android) and covers the page with "El navegador ha cortado los gráficos…" and a "Recargar" button when the browser loses the WebGL context. The PWA icons (`assets/pwa/icon_144.png`, `icon_180.png`, `icon_512.png`, also the project's icon) are the Gota de rocío over the game's backdrop, rendered by `scripts/tools/pwa_icons.gd` (run it **not** headless: `./tools/godot.cmd --path . --script res://scripts/tools/pwa_icons.gd`, then `--import`) after the Gota's look or the palette changes; the preset's and the boot splash's background colour is `scene-bottom`.
 
 `.github/workflows/pages.yml` (with `submodules: true`) exports the `Web` preset, sets `short_name` in `index.manifest.json` with `jq`, writes `version.json` and publishes `build/web` to GitHub Pages on every push to `main`. The repository's Settings → Pages → Source must be "GitHub Actions". The service worker serves from cache first: a visitor gets a new deploy only after closing every tab or the installed app.
 
