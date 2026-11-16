@@ -1,7 +1,8 @@
 class_name SfxLibrary extends RefCounted
 ## Sound effects in the style of sfxr, synthesized in code. Copied from Villaclaro's
 ## scripts/audio/sfx_library.gd, trimmed to this game's effects, with the 16-bit stream writer of
-## Villaclaro's MusicLibrary (there is no music yet). Each effect is a Dictionary of parameters:
+## Villaclaro's MusicLibrary, which this game's MusicLibrary also uses (to_stream()).
+## Each effect is a Dictionary of parameters:
 ## wave ("square", "triangle" or "noise"), "from" and "to" (pitch in Hz at the start and at the
 ## end, slid linearly; for noise, how many new random values per second), "time" (seconds),
 ## "volume", "decay" (power of the fade-out: 1 is linear, higher fades sooner) and optional
@@ -77,15 +78,15 @@ static func build(id: String) -> AudioStreamWAV:
 	return stream
 
 
-## 16-bit mono stream at RATE from samples in -1..1 (clipped).
-static func to_stream(samples: PackedFloat32Array) -> AudioStreamWAV:
+## 16-bit mono stream at rate from samples in -1..1 (clipped).
+static func to_stream(samples: PackedFloat32Array, rate := RATE) -> AudioStreamWAV:
 	var data := PackedByteArray()
 	data.resize(samples.size() * 2)
 	for i in samples.size():
 		data.encode_s16(i * 2, int(clampf(samples[i], -1.0, 1.0) * 32767.0))
 	var stream := AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_16_BITS
-	stream.mix_rate = RATE
+	stream.mix_rate = rate
 	stream.stereo = false
 	stream.data = data
 	return stream
