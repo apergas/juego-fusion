@@ -15,6 +15,8 @@ var _backdrop: Node3D
 var _camera: Camera3D
 var _ui: CanvasLayer
 var _buttons: VBoxContainer
+## The spacer under the buttons: as tall as it takes to lift them over the jar's floor.
+var _bottom: Control
 var _game: Game
 
 
@@ -51,11 +53,23 @@ func _close_title() -> void:
 		_ui.queue_free()
 		_ui = null
 		_buttons = null
+		_bottom = null
 
 
 func _fit() -> void:
 	if _camera:
 		JarBuilder.fit_camera(_camera)
+		_lift_buttons()
+
+
+## The button block ends SPACE_4 above the jar's floor frame, wherever the camera puts it.
+func _lift_buttons() -> void:
+	if _bottom == null:
+		return
+	var floor_y := _camera.unproject_position(Vector3(0.0, -JarBuilder.FRAME, 0.0)).y
+	var view_height := get_viewport().get_visible_rect().size.y
+	_bottom.custom_minimum_size.y = maxf(UiTokens.SPACE_12,
+		view_height - floor_y + UiTokens.SPACE_4)
 
 
 func _build_menu() -> void:
@@ -83,11 +97,11 @@ func _build_menu() -> void:
 	_buttons.add_theme_constant_override(&"separation", UiTokens.SPACE_4)
 	column.add_child(_buttons)
 	_add_button(PLAY_TEXT, _start_game)
-	var bottom := Control.new()
-	bottom.custom_minimum_size.y = UiTokens.SPACE_12
-	bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_child(bottom)
+	_bottom = Control.new()
+	_bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(_bottom)
 	UiTheme.version_label(root)
+	_lift_buttons()
 
 
 func _centered(parent: Control, text: String, variation: StringName) -> void:
