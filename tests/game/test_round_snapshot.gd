@@ -117,3 +117,29 @@ func test_the_kept_round_and_the_file_read_the_same() -> void:
 	var kept := RoundSnapshot.from(Fixtures.round_state(), Fixtures.round_creatures(), 0.75)
 	assert_eq(JSON.stringify(RoundSnapshot.normalized(kept)),
 		JSON.stringify(RoundSnapshot.normalized(Fixtures.kept_round())))
+
+
+func test_a_number_that_is_not_finite_is_never_written() -> void:
+	var state := Fixtures.round_state()
+	state.elapsed = INF
+	state.danger_time = NAN
+	var creatures: Array[Dictionary] = [
+		RoundSnapshot.creature(2, Vector2(NAN, 1.0), INF, Vector2(NAN, -INF), NAN, INF)]
+	var data := RoundSnapshot.from(state, creatures, INF)
+	var back: Dictionary = JSON.parse_string(JSON.stringify(data))
+	assert_true(RoundSnapshot.is_valid(back))
+	assert_eq(float(back.aim_x), 0.0)
+	assert_eq(float(back.elapsed), 0.0)
+	assert_eq(float(back.danger_time), 0.0)
+	for key: String in ["x", "angle", "vx", "vy", "spin", "age"]:
+		assert_eq(float(back.creatures[0][key]), 0.0, key)
+
+
+func test_an_infinite_number_in_a_kept_round_is_refused() -> void:
+	for change: Array in [["score", INF], ["aim_x", INF], ["elapsed", INF], ["aim_x", NAN]]:
+		var data := Fixtures.kept_round()
+		data[change[0]] = change[1]
+		assert_false(RoundSnapshot.is_valid(data), "%s = %s" % [change[0], change[1]])
+	var data := Fixtures.kept_round()
+	data.creatures[0].vx = INF
+	assert_false(RoundSnapshot.is_valid(data), "creature vx = INF")

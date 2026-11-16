@@ -4,8 +4,10 @@ class_name SaveData extends RefCounted
 ## "round"}; "round" is the round in progress the player left (RoundSnapshot), {} for none. A
 ## version 1 save (0.1.0's, without "round") is read as a 2 without a round (migrated()). A save
 ## of another version, or one a played game can't reach (a negative or broken record, an unknown
-## or repeated id, no options, a broken round), is not valid, and nothing of it is applied: the
-## game starts from scratch. JSON reads every number as a float, so apply() converts them.
+## or repeated id, no options), is not valid, and nothing of it is applied: the
+## game starts from scratch. A broken round never refuses the file: apply() drops it (with a
+## warning) and the record, the bestiary and the options still load; a version 1 save's "round" is
+## ignored. JSON reads every number as a float, so apply() converts them.
 
 const VERSION := 2
 ## The oldest version still read: 0.1.0's.
@@ -35,14 +37,7 @@ static func is_valid(data: Dictionary) -> bool:
 		if not id is String or not Chain.IDS.has(id) or seen.has(id):
 			return false
 		seen[id] = true
-	if not data.get("options") is Dictionary:
-		return false
-	if version == 1:
-		return not data.has("round")
-	var kept: Variant = data.get("round")
-	if not kept is Dictionary:
-		return false
-	return (kept as Dictionary).is_empty() or RoundSnapshot.is_valid(kept)
+	return data.get("options") is Dictionary
 
 
 ## Puts a valid save into profile and options; false (and nothing changed) if it is not valid.
@@ -52,12 +47,24 @@ static func apply(data: Dictionary, profile: Profile, options: GameOptions) -> b
 	var current := migrated(data)
 	profile.best_score = int(current.best_score)
 	profile.discovered.assign(current.discovered)
-	profile.saved_round = (current["round"] as Dictionary).duplicate(true)
+	profile.saved_round = _kept_round(current)
 	var loaded := GameOptions.from_dict(current.options)
 	options.sfx_volume = loaded.sfx_volume
 	options.vibration = loaded.vibration
 	options.high_contrast = loaded.high_contrast
 	return true
+
+
+## The round of a valid save if it is one a played game could keep; otherwise {} (and a warning
+## when there was something). migrated() has already emptied a version 1 save's.
+static func _kept_round(data: Dictionary) -> Dictionary:
+	var kept: Variant = data.get("round")
+	if kept == null or (kept is Dictionary and (kept as Dictionary).is_empty()):
+		return {}
+	if not kept is Dictionary or not RoundSnapshot.is_valid(kept):
+		push_warning("SaveData: the kept round is not valid, it is dropped")
+		return {}
+	return (kept as Dictionary).duplicate(true)
 
 
 ## A valid save in VERSION's shape: a version 1 save gets an empty round.
@@ -69,8 +76,9 @@ static func migrated(data: Dictionary) -> Dictionary:
 	return current
 
 
-## A whole number, as JSON gives it back (a float with nothing after the point) or as an int.
+## A whole number, as JSON gives it back (a finite float with nothing after the point) or as an
+## int.
 static func whole(value: Variant) -> bool:
 	if value is int:
 		return true
-	return value is float and is_equal_approx(value, roundf(value))
+	return value is float and is_finite(value) and is_equal_approx(value, roundf(value))

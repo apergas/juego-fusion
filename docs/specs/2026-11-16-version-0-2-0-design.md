@@ -18,7 +18,7 @@ Se tomaron sin preguntar, con la opción que parecía mejor; cualquiera se puede
 | ¿«Jugar» con un tarro guardado pregunta? | Sí, una vez: perder un tarro a medias sin querer es peor que un toque más |
 | ¿Qué se guarda del tarro? | Cada criatura (nivel, posición, giro, velocidad, giro de su velocidad y edad), los puntos, el combo y su reloj, lo que espera y la siguiente, la espera tras soltar, la x de la criatura que espera, el tiempo de la partida, la criatura más grande, la cuenta del peligro y el estado del generador de `Spawner`. La física de después no será idéntica (no lo es ni entre dos partidas con la misma semilla) |
 | ¿Por qué `SaveData` versión 2? | El tarro es un campo nuevo, `"round"`; se sube la versión para que el formato diga qué lleva. Una partida de la versión 1 (la de la 0.1.0) se lee como una 2 sin tarro |
-| Un tarro guardado que no es válido | Como cualquier otro campo roto: el fichero entero se rechaza y se guarda una vez como `save.json.bak`, la regla de la 0.1.0. Una partida jugada no puede llegar ahí |
+| Un tarro guardado que no es válido | Solo se pierde el tarro: se carga el récord, el bestiario y las opciones, el tarro se descarta (con un aviso en el registro) y no hay «Seguir». El fichero no se rechaza por él |
 | Las alas | Del murciélago y del dragón, levantadas sobre los hombros para que se vean por encima del cuerpo, sin pasar nunca del radio por los lados |
 
 ## 0. La capa del design system, a `design/`, y Dependabot para el núcleo
@@ -77,8 +77,8 @@ Una regla pura nueva, `RoundSnapshot`, convierte la partida en un `Dictionary` y
 ### El guardado: `SaveData` versión 2
 
 - `save.json` lleva `{"version": 2, "best_score", "discovered", "options", "round"}`. `"round"` es el tarro (`{}` si no hay).
-- **Una partida de la versión 1** (sin `"round"`) se lee entera y se trata como una 2 sin tarro; el próximo guardado ya la escribe como 2. Una de la versión 1 que traiga `"round"`, o una de la 3 o más, no es válida.
-- Sigue la regla de la 0.1.0: lo que no es válido no se aplica y se guarda una vez como `save.json.bak`.
+- **Una partida de la versión 1** (sin `"round"`) se lee entera y se trata como una 2 sin tarro; el próximo guardado ya la escribe como 2. Una de la versión 1 que traiga `"round"` se lee ignorándolo; una de la 3 o más no es válida.
+- Sigue la regla de la 0.1.0 para todo salvo el tarro: lo que no es válido no se aplica y se guarda una vez como `save.json.bak`. Un tarro roto no rechaza el fichero: `apply()` lo deja vacío.
 - El tarro vive en el `Profile` (`saved_round`), con el récord y el bestiario.
 
 ## 4. Pulido de la 0.1.0 (M-13)
@@ -102,7 +102,7 @@ Solo lo barato y visible:
 Las de la 0.1.0 siguen; esta versión añade o cambia:
 
 - `tests/game/test_round_snapshot.gd`, nuevo: una partida pasa por JSON y vuelve igual (el generador da las mismas criaturas siguientes); el reloj del combo nunca es infinito y un combo viejo vuelve a empezar; lo que una partida que sigue no puede tener se rechaza; una criatura fuera del tarro vuelve dentro; falta un campo y se rechaza.
-- `tests/game/test_save_data.gd`, cambiado: la versión 2 con su tarro va y vuelve; una de la versión 1 (como la escribía la 0.1.0) se lee sin tarro; la versión 3 y la 1 con tarro se rechazan; un tarro roto rechaza el fichero sin cambiar nada; falta `"round"` en una 2 y se rechaza.
+- `tests/game/test_save_data.gd`, cambiado: la versión 2 con su tarro va y vuelve; una de la versión 1 (como la escribía la 0.1.0) se lee sin tarro; la versión 3 se rechaza; la 1 con tarro se lee sin él; un tarro roto (o que falta, o no es un diccionario) se descarta y el récord, el bestiario y las opciones se cargan.
 - `tests/fixtures.gd`, nuevo: la partida de ejemplo que usan los dos.
 - Ninguna prueba toca nodos, escenas, ficheros ni lo que se ve.
 

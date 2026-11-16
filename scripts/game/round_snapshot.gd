@@ -7,7 +7,8 @@ class_name RoundSnapshot extends RefCounted
 ## Scoring.COMBO_WINDOW (later than that it is all the same, and JSON has no INF). is_valid()
 ## refuses what a round still going can't have: an unknown level, a negative score, a waiting
 ## creature Spawner can't give, a danger count already lost, more than MAX_CREATURES, a number
-## that is not one; creatures_of() keeps each x inside the jar.
+## that is not one; creatures_of() keeps each x inside the jar. creature() and from() turn a
+## non-finite float into 0.
 
 ## More creatures than this never fit in the jar.
 const MAX_CREATURES := 120
@@ -17,17 +18,19 @@ const MAX_CREATURES := 120
 ## velocity, its turning speed and its seconds in the jar.
 static func creature(level: int, at: Vector2, angle: float, velocity: Vector2, spin: float,
 		age: float) -> Dictionary:
-	return {"level": level, "x": at.x, "y": at.y, "angle": angle, "vx": velocity.x,
-		"vy": velocity.y, "spin": spin, "age": age}
+	return {"level": level, "x": _finite(at.x), "y": _finite(at.y), "angle": _finite(angle),
+		"vx": _finite(velocity.x), "vy": _finite(velocity.y), "spin": _finite(spin),
+		"age": _finite(age)}
 
 
 ## The round of state, with its creatures (creature() each) and the waiting creature's x.
 static func from(state: GameState, creatures: Array[Dictionary], aim_x: float) -> Dictionary:
 	return {"score": state.score, "combo": state.combo, "max_level": state.max_level,
-		"since_merge": minf(state.since_merge, Scoring.COMBO_WINDOW),
+		"since_merge": _finite(minf(state.since_merge, Scoring.COMBO_WINDOW)),
 		"current": state.current, "next": state.next, "can_drop": state.can_drop,
-		"wait_left": state.wait_left, "aim_x": aim_x, "danger_time": state.danger_time,
-		"elapsed": state.elapsed, "rng_state": str(state.rng.state),
+		"wait_left": _finite(state.wait_left), "aim_x": _finite(aim_x),
+		"danger_time": _finite(state.danger_time),
+		"elapsed": _finite(state.elapsed), "rng_state": str(state.rng.state),
 		"creatures": creatures.duplicate(true)}
 
 
@@ -117,6 +120,12 @@ static func _is_creature(item: Variant) -> bool:
 		if not _number(body.get(key)):
 			return false
 	return _number_in(body.get("age"), 0.0, INF)
+
+
+## A float a file can hold: INF and NaN (a physics blow-up) become 0, so a kept round is always
+## readable.
+static func _finite(value: float) -> float:
+	return value if is_finite(value) else 0.0
 
 
 ## A finite number (JSON gives floats; the game keeps ints too).

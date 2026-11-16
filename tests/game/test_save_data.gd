@@ -9,7 +9,7 @@ const BROKEN := [
 	["version", 3.0], ["version", 0.0], ["version", "1"], ["best_score", -1.0],
 	["best_score", 12.5], ["best_score", "mucho"], ["discovered", "gota"],
 	["discovered", ["quimera"]], ["discovered", ["gota", "gota"]], ["discovered", [3.0]],
-	["round", []], ["round", "tarro"], ["options", []], ["options", "alto"]]
+	["options", []], ["options", "alto"]]
 
 
 func _profile() -> Profile:
@@ -55,7 +55,7 @@ func test_what_a_played_game_cannot_reach_is_refused() -> void:
 
 
 func test_a_save_missing_a_field_is_refused() -> void:
-	for key in ["version", "best_score", "discovered", "options", "round"]:
+	for key in ["version", "best_score", "discovered", "options"]:
 		var data := _saved()
 		data.erase(key)
 		assert_false(SaveData.is_valid(data), "without %s" % key)
@@ -72,12 +72,10 @@ func test_a_refused_save_changes_nothing() -> void:
 	assert_eq_deep(options.to_dict(), _options().to_dict())
 
 
-## A save as 0.1.0 wrote it: version 1, no round.
+## A save exactly as 0.1.0 wrote it, written out by hand: version 1, no round.
 func _version_1() -> Dictionary:
-	var data := _saved()
-	data.erase("round")
-	data.version = 1.0
-	return data
+	return {"version": 1.0, "best_score": 4321.0, "discovered": ["slime_verde", "gota"],
+		"options": {"sfx": 0.5, "vibration": false, "high_contrast": true}}
 
 
 func test_a_version_1_save_loads_without_a_round() -> void:
@@ -87,16 +85,21 @@ func test_a_version_1_save_loads_without_a_round() -> void:
 	profile.saved_round = Fixtures.kept_round()
 	var options := GameOptions.new()
 	assert_true(SaveData.apply(data, profile, options))
-	assert_eq(profile.best_score, 1234)
-	assert_eq(Array(profile.discovered), ["gota", "slime_verde", "seta"])
+	assert_eq(profile.best_score, 4321)
+	assert_eq(Array(profile.discovered), ["slime_verde", "gota"])
 	assert_true(profile.saved_round.is_empty())
+	assert_eq_deep(options.to_dict(), {"sfx": 0.5, "vibration": false, "high_contrast": true})
 	assert_eq(int(SaveData.migrated(data).version), SaveData.VERSION)
 
 
-func test_a_version_1_save_with_a_round_is_refused() -> void:
+func test_the_round_of_a_version_1_save_is_ignored() -> void:
 	var data := _version_1()
 	data["round"] = Fixtures.kept_round()
-	assert_false(SaveData.is_valid(data))
+	assert_true(SaveData.is_valid(data))
+	var profile := Profile.new()
+	assert_true(SaveData.apply(data, profile, GameOptions.new()))
+	assert_eq(profile.best_score, 4321)
+	assert_true(profile.saved_round.is_empty())
 
 
 func test_a_kept_round_goes_through_json_and_back() -> void:
@@ -110,16 +113,36 @@ func test_a_kept_round_goes_through_json_and_back() -> void:
 		JSON.stringify(RoundSnapshot.normalized(profile.saved_round)))
 
 
-func test_a_broken_round_refuses_the_whole_save_and_changes_nothing() -> void:
-	var source := _profile()
+func test_a_broken_round_is_dropped_and_the_rest_loads() -> void:
 	var broken := Fixtures.kept_round()
 	broken.score = -5.0
-	source.saved_round = broken
-	var data: Dictionary = JSON.parse_string(JSON.stringify(SaveData.from(source, _options())))
-	assert_false(SaveData.is_valid(data))
-	var profile := _profile()
-	var options := _options()
-	assert_false(SaveData.apply(data, profile, options))
-	assert_eq(profile.best_score, 1234)
+	for bad: Variant in [broken, [], "tarro", 7.0]:
+		var source := _profile()
+		var data: Dictionary = JSON.parse_string(JSON.stringify(SaveData.from(source, _options())))
+		data["round"] = bad
+		assert_true(SaveData.is_valid(data), "the file is still valid with round = %s" % [bad])
+		var profile := Profile.new()
+		var options := GameOptions.new()
+		assert_true(SaveData.apply(data, profile, options))
+		assert_eq(profile.best_score, 1234)
+		assert_eq(Array(profile.discovered), ["gota", "slime_verde", "seta"])
+		assert_eq_deep(options.to_dict(), _options().to_dict())
+		assert_true(profile.saved_round.is_empty(), "round = %s dropped" % [bad])
+
+
+func test_a_save_without_a_round_loads_without_one() -> void:
+	var data := _saved()
+	data.erase("round")
+	var profile := Profile.new()
+	assert_true(SaveData.apply(data, profile, GameOptions.new()))
 	assert_true(profile.saved_round.is_empty())
-	assert_eq_deep(options.to_dict(), _options().to_dict())
+	assert_eq(profile.best_score, 1234)
+
+
+func test_a_number_that_is_not_finite_is_not_whole() -> void:
+	assert_false(SaveData.whole(INF))
+	assert_false(SaveData.whole(-INF))
+	assert_false(SaveData.whole(NAN))
+	var data := _saved()
+	data.best_score = INF
+	assert_false(SaveData.is_valid(data))
