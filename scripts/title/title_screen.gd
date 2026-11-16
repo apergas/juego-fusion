@@ -1,6 +1,7 @@
 class_name TitleScreen extends Node
 ## Main scene. Shows the game's name over the empty jar and its backdrop, with its big buttons
-## in the lower half. Owns the only AudioDirector and the options, and creates a Game for each
+## in the lower half. Owns the only AudioDirector, the options and the profile (the record and the bestiary), loaded
+## from the save (SaveStore) at the start, and creates a Game for each
 ## session; when the Game emits quit_to_title it frees it and shows the title again. Pattern
 ## taken from Villaclaro's scripts/title/title_screen.gd.
 
@@ -11,6 +12,7 @@ const PLAY_TEXT := "Jugar"
 
 var _audio: AudioDirector
 var _options: GameOptions
+var _profile: Profile
 var _backdrop: Node3D
 var _camera: Camera3D
 var _ui: CanvasLayer
@@ -22,6 +24,8 @@ var _game: Game
 
 func _ready() -> void:
 	_options = GameOptions.new()
+	_profile = Profile.new()
+	SaveStore.load_into(_profile, _options)
 	DisplaySettings.apply(get_window(), _options)
 	_audio = AudioDirector.new()
 	add_child(_audio)
@@ -126,7 +130,7 @@ func _start_game() -> void:
 		return
 	_close_title()
 	_game = GAME_SCENE.instantiate() as Game
-	_game.setup(_audio, _options)
+	_game.setup(_audio, _options, _profile)
 	_game.quit_to_title.connect(_on_quit_to_title)
 	add_child(_game)
 

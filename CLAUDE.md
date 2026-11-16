@@ -27,7 +27,7 @@ What the code does not explain:
 
 - The submodule is the public GitHub repository `apergas/godot-design-system` (its local clone for changing the core is `C:\Users\peixe\Documents\godot-design-system`), pinned to a tag (`v1.0.0`).
 - `scripts/ui/ui_tokens.gd` and `docs/design-system/tokens.css` are generated from `addons/design_system/tokens/base.json` plus `docs/design-system/tokens.json`; never edit them by hand.
-- On desktop `user://` is `%APPDATA%\Godot\app_userdata\juego-fusion\`; autoplay runs save to their own file and never touch the player's.
+- On desktop `user://` is `%APPDATA%\Godot\app_userdata\juego-fusion\`. The one save file is `save.json` (`SaveData` version 1: the record, the discovered ids and the options); autoplay runs save to `save_autoplay.json` and never touch the player's. A damaged file or one of an unknown version is ignored (nothing of it is applied) and overwritten at the next save.
 - The whole interface is drawn `DisplaySettings.UI_SCALE` (1.25) times bigger than its tokens on every device (`content_scale_factor`): HUD offsets and window sizes are in those units.
 - The jar's numbers are the rule `JarSpec`: floor at y 0, walls at x ±3.0, danger line at 7.4, the waiting creature at 8.0; the orthographic camera (`KEEP_HEIGHT`) always shows 7.6 × 13.5 m around y 5.1 (`camera_size()`), so the HUD has 3.2 m of room above the jar on any phone.
 
