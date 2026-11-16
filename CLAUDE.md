@@ -22,6 +22,7 @@ The code says what each script does; this is the map, plus what the code can't t
 - `data/creatures/<id>.tres` — `CreatureData`: one per link of the chain (`look` picks which features `CreatureLooks` adds to the faceted ball: gota, slime, slime_mejillas, seta, murcielago, lobo, golem, dragon; `color` is the body and its particles, `accent` the features).
 - `assets/fonts/` — Baloo 2 (display) and Nunito (ui), variable, OFL, copied from Villaclaro; `assets/CREDITS.md` says where every asset comes from.
 - `addons/design_system/` — the design system's core, a **git submodule** (its own repository, `godot-design-system`), the same in every game and never edited from here. The game's layer is `design_system.json` (every path the tools read), `docs/design-system/` (its tokens, its docs, its components) and `UiTheme`.
+- `addons/gut/` — GUT 9.7.1 (MIT), the unit-test framework, vendored as released and never edited; its plugin is not enabled. `tests/` — the unit tests of the pure rules and the data (see Tests), `tests/<folder>/test_<script>.gd` as in `scripts/`; `.gutconfig.json` — GUT's settings. The three are left out of the export.
 - `docs/` — `ideas.md`, `documento-maestro.md` (the versions and what each holds), `specs/`, `plans/` and `design-system/` (`2-fundamentos.md` documents every token of the game's layer, `4-accesibilidad.md` its contrast pairs). Specs and plans go here, not in `docs/boost/`.
 
 What the code does not explain:
@@ -59,11 +60,17 @@ What the code does not explain:
 - Keep the big owners small: a file that is already big gets no new responsibility; the new code gets its own piece.
 - Update this file in the same commit as the code it describes.
 
-## No tests — ever
+## Tests
 
-**This project has no unit tests or automated tests of any kind, at any point.** This is the user's decision and it overrides any skill or workflow (TDD, "write a failing test first", test steps in plans, verification asking for test runs, etc.). Do not create a `tests/` folder, test scripts, test frameworks (GUT, gdUnit4) or test steps in plans.
+Unit tests (GUT, `tests/`) check the **pure rules** and the **data**; autoplay stays the check of the whole game. A version runs both; tests never replace an autoplay run. The user decided on 2026-11-16 that this game has them: tests that help find bugs, not coverage numbers.
 
-Verify by hand instead: `--check-only` on changed scripts, run the game, autoplay runs, read the Godot output for errors, and take screenshots or recorded frames to check it visually. For the design system also run `gen_ui_tokens.gd -- --check` and `check_ui_values.gd`.
+- What: the rules of `scripts/game/` that touch no node (`RefCounted` / `Resource`) and the coherence of `data/creatures/` (`tests/data/`). Never nodes, scenes, constructors, UI, visuals, sound or files: no test calls `SaveStore`, `FileAccess` or writes `user://`. No test changes a loaded resource (`data/*.tres`): it works on `GameState.new()`, `Profile.new()` or objects made in the test.
+- When: **every development ends with its tests.** A change to a pure rule adds or updates its tests in the same version; a new rule script comes with its `tests/<folder>/test_<script>.gd`; a bug in a rule is fixed with a test that fails without the fix; a data or balance change that moves a value a test pins on purpose changes that test in the same commit. A failing test is a bug in the game or in the test: never loosen it to make it pass.
+- How: each file `extends GutTest`, starts with a `##` header and has no `class_name`; each test is `func test_<what must hold>() -> void:`; shared builders, if they are ever needed, go in `tests/fixtures.gd`. Randomness goes through a seeded `RandomNumberGenerator` passed in (`Spawner.pick()` takes one): a test checks bounds and orderings over many seeds, never one seed's numbers. Tests use `RunFlags`' constants, never a `"--..."` string.
+- Where they run: at the end of every task that touches a rule or data, at the end of every version, in `tests.yml` on every push to `develop` and before every Pages deploy (`pages.yml`). Not in the pre-commit hook (the design system's).
+- Plans may have test steps for rules and data only; never test steps for nodes, scenes or visuals.
+
+Everything else is still verified by hand: `--check-only` on changed scripts, run the game, autoplay runs, read the Godot output for errors, and take screenshots or recorded frames to check it visually. For the design system also run `gen_ui_tokens.gd -- --check` and `check_ui_values.gd`.
 
 ## Commands
 
@@ -75,6 +82,7 @@ Verify by hand instead: `--check-only` on changed scripts, run the game, autopla
 - Regenerate `UiTokens` and `tokens.css` after changing `tokens.json`: `./tools/godot.cmd --headless --path . --script res://addons/design_system/tools/gen_ui_tokens.gd` (`-- --check` writes nothing and exits 1 if they are stale). Hand-written UI values: `./tools/godot.cmd --headless --path . --script res://addons/design_system/tools/check_ui_values.gd`.
 - Import / refresh the class cache (after adding a `class_name` script): `./tools/godot.cmd --headless --path . --import`
 - Validate a script: `./tools/godot.cmd --headless --path . --check-only --script res://scripts/game/chain.gd`
+- Run the unit tests (GUT reads `res://.gutconfig.json`; seconds; exit 0, or 1 when a test fails; an `ERROR` line in its output is a failure too; GUT writes temporary files to `user://`, so set `APPDATA` to a scratch path in the same command): `APPDATA="C:/Users/peixe/AppData/Local/Temp/juego-fusion-x/appdata" ./tools/godot.cmd --headless --path . --script res://addons/gut/gut_cmdln.gd`. One file: add `-gtest=res://tests/game/test_chain.gd`.
 - Run the game: `./tools/godot.cmd --path .` (it opens at 720 × 1280; `--resolution 360x740` is a phone's size). `-- --touch` makes the mouse act as a finger.
 - Never touch the player's save: every run that could save sets `APPDATA` inline to a literal scratch path, e.g. `APPDATA="C:/Users/peixe/AppData/Local/Temp/juego-fusion-x/appdata" ./tools/godot.cmd ...`.
 - Export for the web (export templates for 4.7.2 are installed): `mkdir -p build/web && ./tools/godot.cmd --headless --path . --export-release "Web" build/web/index.html`. Preview it with any static server on `build/web`.
@@ -83,7 +91,7 @@ Verify by hand instead: `--check-only` on changed scripts, run the game, autopla
 
 The `Web` preset in `export_presets.cfg` is single-threaded (`variant/thread_support=false`, GitHub Pages can't send the headers threads need) and a PWA in portrait (`progressive_web_app/orientation=2`, `display` Fullscreen), so a phone can install it to its home screen. Its `html/head_include`, taken from Villaclaro, sets the iOS icon's name, turns `preserveDrawingBuffer` off (the engine asks for it, which left the canvas black and spammed `glBufferData` errors in Chrome on Android) and covers the page with "El navegador ha cortado los gráficos…" and a "Recargar" button when the browser loses the WebGL context. The PWA icons (`assets/pwa/icon_144.png`, `icon_180.png`, `icon_512.png`, also the project's icon) are the Gota de rocío over the game's backdrop, rendered by `scripts/tools/pwa_icons.gd` (run it **not** headless: `./tools/godot.cmd --path . --script res://scripts/tools/pwa_icons.gd`, then `--import`) after the Gota's look or the palette changes; the preset's and the boot splash's background colour is `scene-bottom`.
 
-`.github/workflows/pages.yml` (with `submodules: true`) exports the `Web` preset, sets `short_name` in `index.manifest.json` with `jq`, writes `version.json` and publishes `build/web` to GitHub Pages on every push to `main`. The repository's Settings → Pages → Source must be "GitHub Actions". The service worker serves from cache first: a visitor gets a new deploy only after closing every tab or the installed app.
+`.github/workflows/tests.yml` runs the unit tests on every push to `develop` and by hand (Godot 4.7.2 without export templates); `.github/workflows/pages.yml` (with `submodules: true`) runs them too after the import, so a failing test stops the deploy, then exports the `Web` preset, sets `short_name` in `index.manifest.json` with `jq`, writes `version.json` and publishes `build/web` to GitHub Pages on every push to `main`. The repository's Settings → Pages → Source must be "GitHub Actions". The service worker serves from cache first: a visitor gets a new deploy only after closing every tab or the installed app.
 
 ## Git workflow (gitflow)
 

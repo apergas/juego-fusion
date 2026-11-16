@@ -41,9 +41,10 @@ jobs:
           mv templates/* "$templates/"
           rm -rf godot.zip templates.tpz templates
 
-      - name: Import and export
+      - name: Import, test and export
         run: |
           ./godot --headless --path . --import
+          ./godot --headless --path . --script res://addons/gut/gut_cmdln.gd
           ./godot --headless --path . --script res://addons/design_system/tools/gen_ui_tokens.gd -- --check
           ./godot --headless --path . --script res://addons/design_system/tools/check_ui_values.gd
           mkdir -p build/web
